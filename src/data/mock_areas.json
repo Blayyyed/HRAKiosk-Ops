@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [
   { "id": "CT121", "name": "121’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
   { "id": "CT135", "name": "135’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
@@ -5,3 +6,6 @@
   { "id": "CT185", "name": "185’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
   { "id": "CT208", "name": "208’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" }
 ]
+=======
+[]
+>>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
