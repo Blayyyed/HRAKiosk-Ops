@@ -27,10 +27,6 @@ const MapSelect: React.FC = () => {
   // Relative pin position (0..1)
   const [pin, setPin] = useState<{ x: number; y: number } | null>(null);
 
-  // Overhead controls
-  const [overhead, setOverhead] = useState<"yes" | "no" | null>(null);
-  const [overheadHeight, setOverheadHeight] = useState<string>("");
-
   // ──────────────────────────────────────────────
   // Load area: Dexie first, fallback to JSON
   // ──────────────────────────────────────────────
@@ -161,9 +157,7 @@ const MapSelect: React.FC = () => {
   };
 
   const pinSelected = !!pin;
-  const overheadValid =
-    overhead === "no" || (overhead === "yes" && overheadHeight.trim() !== "");
-  const readyToContinue = status === "ready" && pinSelected && overheadValid;
+  const readyToContinue = status === "ready" && pinSelected;
 
   // Continue → Finalize (snapshot + fields)
   const onContinue = () => {
@@ -175,8 +169,6 @@ const MapSelect: React.FC = () => {
         areaName: area?.name || "Area",
         mapPin: pin,
         mapSnapshotDataUrl: snapshot,
-        overheadNeeded: overhead === "yes",
-        overheadHeight: overhead === "yes" ? overheadHeight.trim() || null : null,
       },
     });
   };
@@ -214,49 +206,6 @@ const MapSelect: React.FC = () => {
             Click on the map to mark your work location.
           </p>
         )}
-      </div>
-
-      <div className="k-card space-y-2">
-        <p className="font-medium">Overhead required?</p>
-        <div className="flex flex-wrap items-center gap-6">
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="radio"
-              name="overhead"
-              checked={overhead === "no"}
-              onChange={() => {
-                setOverhead("no");
-                setOverheadHeight("");
-              }}
-            />
-            <span>No</span>
-          </label>
-
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="radio"
-              name="overhead"
-              checked={overhead === "yes"}
-              onChange={() => setOverhead("yes")}
-            />
-            <span>Yes</span>
-          </label>
-
-          {overhead === "yes" && (
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min={0}
-                step="0.1"
-                className="border rounded px-2 py-1 w-28"
-                placeholder="Height"
-                value={overheadHeight}
-                onChange={(e) => setOverheadHeight(e.target.value)}
-              />
-              <span className="text-sm text-slate-500">ft</span>
-            </div>
-          )}
-        </div>
       </div>
 
       <div className="flex justify-end">

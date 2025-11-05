@@ -1,17 +1,15 @@
 // src/pages/Admin.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { db } from "../db/dexie";
 import { EntryRecord, Area } from "../lib/entryTypes";
 import { useAuth } from "../auth/AuthContext";
-
-type AreaOption = { id: string; name: string; mapPath?: string };
 
 const AdminPage: React.FC = () => {
   const { logout } = useAuth();
 
   // entries and areas
   const [pending, setPending] = useState<EntryRecord[]>([]);
-  const [areas, setAreas] = useState<AreaOption[]>([]);
+  const [areas, setAreas] = useState<Area[]>([]);
 
   // update maps modal state
   const [showUpdateMaps, setShowUpdateMaps] = useState(false);
@@ -22,11 +20,138 @@ const AdminPage: React.FC = () => {
   );
   const [saving, setSaving] = useState(false);
 
+  // creation forms
+  const [ctmtName, setCtmtName] = useState<string>("");
+  const [ctmtImage, setCtmtImage] = useState<string | null>(null);
+  const [ctmtSaving, setCtmtSaving] = useState(false);
+
+  const [rhrName, setRhrName] = useState<string>("");
+  const [rhrImage, setRhrImage] = useState<string | null>(null);
+  const [rhrSaving, setRhrSaving] = useState(false);
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [adminError, setAdminError] = useState<string | null>(null);
+
+  const fileToDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ""));
+      reader.onerror = () => reject(reader.error ?? new Error("Unable to read file"));
+      reader.readAsDataURL(file);
+    });
+
+  const resolveMapSrc = (path?: string | null) =>
+    path && path.length > 0 ? path : "/maps/placeholder.svg";
+
+  const handleCtmtFile = async (file: File | null) => {
+    if (!file) {
+      setCtmtImage(null);
+      return;
+    }
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setCtmtImage(dataUrl);
+    } catch (err) {
+      console.error("Failed to read CTMT map file", err);
+    }
+  };
+
+  const handleRhrFile = async (file: File | null) => {
+    if (!file) {
+      setRhrImage(null);
+      return;
+    }
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setRhrImage(dataUrl);
+    } catch (err) {
+      console.error("Failed to read RHR map file", err);
+    }
+  };
+
+  const addCtmtArea = async () => {
+    const name = ctmtName.trim();
+    if (!name) {
+      return;
+    }
+    setAdminError(null);
+    setCtmtSaving(true);
+    try {
+      await db.areas.add({
+        id: `CT_${crypto.randomUUID()}`,
+        name,
+        mapPath: ctmtImage ?? "/maps/placeholder.svg",
+        category: "CTMT",
+      });
+      setCtmtName("");
+      setCtmtImage(null);
+      await loadAreas();
+    } finally {
+      setCtmtSaving(false);
+    }
+  };
+
+  const addRhrArea = async () => {
+    const name = rhrName.trim();
+    if (!name) {
+      return;
+    }
+    setAdminError(null);
+    setRhrSaving(true);
+    try {
+      await db.areas.add({
+        id: `RHR_${crypto.randomUUID()}`,
+        name,
+        mapPath: rhrImage ?? "/maps/placeholder.svg",
+        category: "RHR",
+      });
+      setRhrName("");
+      setRhrImage(null);
+      await loadAreas();
+    } finally {
+      setRhrSaving(false);
+    }
+  };
+
   const loadAreas = async () => {
     const all = await db.areas.toArray();
+    all.forEach((area) => {
+      if (!area.category) {
+        area.category = "CTMT";
+      }
+    });
     all.sort((a, b) => a.name.localeCompare(b.name));
-    setAreas(all.map((a) => ({ id: a.id, name: a.name, mapPath: a.mapPath })));
+    setAreas(all);
   };
+
+  const deleteArea = async (area: Area) => {
+    const confirmed = window.confirm(
+      `Delete “${area.name}”? This action cannot be undone.`
+    );
+    if (!confirmed) {
+      return;
+    }
+    setAdminError(null);
+    setDeletingId(area.id);
+    try {
+      await db.areas.delete(area.id);
+      await loadAreas();
+    } catch (err) {
+      console.error("Failed to delete map", err);
+      setAdminError("Unable to delete map. Please retry.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const ctmtAreas = useMemo(
+    () => areas.filter((a) => (a.category ?? "CTMT") === "CTMT"),
+    [areas]
+  );
+  const rhrAreas = useMemo(
+    () => areas.filter((a) => (a.category ?? "CTMT") === "RHR"),
+    [areas]
+  );
 
   const refreshEntries = async () => {
     const rows = await db.entries
@@ -62,7 +187,7 @@ const AdminPage: React.FC = () => {
   const onAreaChange = (val: string) => {
     setSelectedAreaId(val);
     const found = areas.find((a) => a.id === val);
-    setPreviewUrl(found?.mapPath);
+    setPreviewUrl(resolveMapSrc(found?.mapPath));
     setIncomingDataUrl(undefined);
   };
 
@@ -123,6 +248,212 @@ const AdminPage: React.FC = () => {
           Clear All Entries
         </button>
       </div>
+
+      {adminError && (
+        <div className="bg-rose-100 border border-rose-200 text-rose-700 px-4 py-2 rounded">
+          {adminError}
+        </div>
+      )}
+
+      {/* CTMT creation */}
+      <section className="bg-white border rounded-lg p-5 space-y-4">
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold text-slate-800">CTMT Maps</h2>
+          <p className="text-sm text-slate-600">
+            Add CTMT maps and optional images for the operator rounds flow.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-slate-700">
+                CTMT map name
+              </label>
+              <input
+                value={ctmtName}
+                onChange={(e) => setCtmtName(e.target.value)}
+                className="border rounded px-3 py-2 w-full"
+                placeholder="e.g. CTMT Elevation 120"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-slate-700">
+                Optional map image upload
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => void handleCtmtFile(e.target.files?.[0] ?? null)}
+              />
+              <p className="text-xs text-slate-500">
+                If no image is selected, the placeholder map will be used.
+              </p>
+            </div>
+
+            <button
+              onClick={addCtmtArea}
+              disabled={ctmtSaving || ctmtName.trim() === ""}
+              className={`px-4 py-2 rounded text-white font-medium ${
+                ctmtSaving || ctmtName.trim() === ""
+                  ? "bg-slate-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {ctmtSaving ? "Saving…" : "Add CTMT Map"}
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-700">Preview</p>
+            <div className="border rounded bg-slate-100 p-3 flex justify-center">
+              <img
+                src={resolveMapSrc(ctmtImage)}
+                alt="CTMT preview"
+                className="max-h-64 rounded"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-slate-800">Existing CTMT maps</h3>
+          {ctmtAreas.length === 0 ? (
+            <p className="text-sm text-slate-600 mt-2">
+              No CTMT maps stored yet. Add one using the form above.
+            </p>
+          ) : (
+            <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {ctmtAreas.map((area) => (
+                <div key={area.id} className="border rounded-lg overflow-hidden flex flex-col">
+                  <div className="bg-slate-50 border-b px-3 py-2 flex items-center justify-between gap-3 text-sm font-semibold text-slate-800">
+                    <span className="truncate" title={area.name}>
+                      {area.name}
+                    </span>
+                    <button
+                      onClick={() => void deleteArea(area)}
+                      disabled={deletingId === area.id}
+                      className={`text-xs px-2 py-1 rounded border ${
+                        deletingId === area.id
+                          ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                          : "bg-white text-rose-600 hover:bg-rose-50"
+                      }`}
+                    >
+                      {deletingId === area.id ? "Deleting…" : "Delete"}
+                    </button>
+                  </div>
+                  <img
+                    src={resolveMapSrc(area.mapPath)}
+                    alt={area.name}
+                    className="w-full object-contain max-h-56"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* RHR creation */}
+      <section className="bg-white border rounded-lg p-5 space-y-4">
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold text-slate-800">RHR / RCIC Maps</h2>
+          <p className="text-sm text-slate-600">
+            Maintain the RHR and RCIC map gallery used when operators request additional access.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-slate-700">
+                RHR map name
+              </label>
+              <input
+                value={rhrName}
+                onChange={(e) => setRhrName(e.target.value)}
+                className="border rounded px-3 py-2 w-full"
+                placeholder="e.g. RHR Pump A"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-slate-700">
+                Optional map image upload
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => void handleRhrFile(e.target.files?.[0] ?? null)}
+              />
+              <p className="text-xs text-slate-500">
+                If no image is selected, the placeholder map will be used.
+              </p>
+            </div>
+
+            <button
+              onClick={addRhrArea}
+              disabled={rhrSaving || rhrName.trim() === ""}
+              className={`px-4 py-2 rounded text-white font-medium ${
+                rhrSaving || rhrName.trim() === ""
+                  ? "bg-slate-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {rhrSaving ? "Saving…" : "Add RHR Map"}
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-700">Preview</p>
+            <div className="border rounded bg-slate-100 p-3 flex justify-center">
+              <img
+                src={resolveMapSrc(rhrImage)}
+                alt="RHR preview"
+                className="max-h-64 rounded"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-slate-800">Existing RHR maps</h3>
+          {rhrAreas.length === 0 ? (
+            <p className="text-sm text-slate-600 mt-2">
+              No RHR maps stored yet. Add one using the form above.
+            </p>
+          ) : (
+            <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {rhrAreas.map((area) => (
+                <div key={area.id} className="border rounded-lg overflow-hidden flex flex-col">
+                  <div className="bg-slate-50 border-b px-3 py-2 flex items-center justify-between gap-3 text-sm font-semibold text-slate-800">
+                    <span className="truncate" title={area.name}>
+                      {area.name}
+                    </span>
+                    <button
+                      onClick={() => void deleteArea(area)}
+                      disabled={deletingId === area.id}
+                      className={`text-xs px-2 py-1 rounded border ${
+                        deletingId === area.id
+                          ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                          : "bg-white text-rose-600 hover:bg-rose-50"
+                      }`}
+                    >
+                      {deletingId === area.id ? "Deleting…" : "Delete"}
+                    </button>
+                  </div>
+                  <img
+                    src={resolveMapSrc(area.mapPath)}
+                    alt={area.name}
+                    className="w-full object-contain max-h-56"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* list */}
       <h2 className="text-xl font-semibold">Entry Pending</h2>
