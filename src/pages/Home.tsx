@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // src/pages/Home.tsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -25,39 +24,20 @@ const Home: React.FC = () => {
     if (count === 0) {
       await seedMock();
     }
-    const list = await db.areas
-      .where("category")
-      .equals("CTMT")
-      .sortBy("name");
+    const list = await db.areas.where("category").equals("CTMT").sortBy("name");
     setAreas(list as Area[]);
     setLoading(false);
   };
 
   useEffect(() => {
     loadAreas();
-=======
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { db } from '../db/dexie';
-import { seedMock } from '../db/seed';
-
-/**
- * Landing page that points operators to the CTMT maps flow.
- */
-const Home: React.FC = () => {
-  const nav = useNavigate();
-
-  useEffect(() => {
-    (async () => {
-      const count = await db.areas.count();
-      if (count === 0) {
-        await seedMock();
-      }
-    })();
->>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
   }, []);
 
-  const onRhrNo = async () => {
+  const onContinue = async () => {
+    if (rhrChoice === "yes") {
+      nav("/rhr");
+      return;
+    }
     const rec: EntryRecord = {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
@@ -74,12 +54,7 @@ const Home: React.FC = () => {
     nav("/thanks");
   };
 
-  const onRhrYes = () => {
-    nav("/rhr");
-  };
-
   return (
-<<<<<<< HEAD
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-primary">Select CTMT Elevation</h1>
@@ -103,11 +78,6 @@ const Home: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="font-semibold text-slate-800">{a.name}</div>
                   <span className="text-xs text-slate-500">Tap to open</span>
-                </div>
-                <div className="mt-3 text-sm text-slate-600">
-                  {a.mapPath?.startsWith("data:")
-                    ? "Custom map uploaded"
-                    : "Using placeholder map (upload in Admin)"}
                 </div>
               </button>
             ))}
@@ -136,41 +106,18 @@ const Home: React.FC = () => {
               </label>
             </div>
 
-            <div className="flex gap-3 pt-1">
+            <div className="flex justify-start pt-1">
               <button
-                className={`k-btn ${rhrChoice !== "no" ? "opacity-60 cursor-not-allowed" : ""}`}
-                disabled={rhrChoice !== "no"}
-                onClick={onRhrNo}
+                className={`k-btn ${!rhrChoice ? "opacity-60 cursor-not-allowed" : ""}`}
+                disabled={!rhrChoice}
+                onClick={onContinue}
               >
-                Continue (No)
-              </button>
-              <button
-                className={`k-btn ${rhrChoice !== "yes" ? "opacity-60 cursor-not-allowed" : ""}`}
-                disabled={rhrChoice !== "yes"}
-                onClick={onRhrYes}
-              >
-                Continue (Yes)
+                Continue
               </button>
             </div>
           </div>
         </>
       )}
-=======
-    <div className="max-w-screen-sm mx-auto p-6 space-y-6">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold text-slate-900">Operator Rounds</h1>
-        <p className="text-sm text-slate-600">
-          Start with the CTMT map gallery to review your planned access path.
-        </p>
-      </header>
-
-      <button
-        className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold px-4 py-3 shadow"
-        onClick={() => nav('/ctmt')}
-      >
-        CTMT Maps
-      </button>
->>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
     </div>
   );
 };
