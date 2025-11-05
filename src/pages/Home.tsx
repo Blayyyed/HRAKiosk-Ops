@@ -1,40 +1,138 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { db } from '../db/dexie';
-import { Area } from '../lib/entryTypes';
-import { seedMock } from '../db/seed';
+// src/pages/Home.tsx
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { db } from "../db/dexie";
+import { seedMock } from "../db/seed";
+import type { EntryRecord } from "../lib/entryTypes";
 
-/**
- * Landing page where users select a Drywell area. Seeds mock areas if none exist.
- */
+type Area = {
+  id: string;
+  name: string;
+  mapPath?: string;
+  category?: "CTMT" | "RHR";
+};
+
 const Home: React.FC = () => {
+  const nav = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [rhrChoice, setRhrChoice] = useState<"yes" | "no" | null>(null);
+
+  const loadAreas = async () => {
+    setLoading(true);
+    const count = await db.areas.count();
+    if (count === 0) {
+      await seedMock();
+    }
+    const list = await db.areas
+      .where("category")
+      .equals("CTMT")
+      .sortBy("name");
+    setAreas(list as Area[]);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    (async () => {
-      const count = await db.areas.count();
-      if (count === 0) {
-        await seedMock();
-      }
-      setAreas(await db.areas.toArray());
-    })();
+    loadAreas();
   }, []);
 
+  const onRhrNo = async () => {
+    const rec: EntryRecord = {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      areaId: "CTMT_ROUND",
+      areaName: "CTMT Group (RHR/RCIC: No)",
+      spotX: 0.5,
+      spotY: 0.5,
+      mapSnapshotDataUrl: undefined,
+      badges: [],
+      workOrder: "",
+      status: "entry_pending",
+    };
+    await db.entries.add(rec);
+    nav("/thanks");
+  };
+
+  const onRhrYes = () => {
+    nav("/rhr");
+  };
+
   return (
-    <div className="max-w-screen-sm mx-auto p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Select Drywell Area</h1>
-      <p className="text-sm text-slate-600">Choose the area to begin the HRA entry flow.</p>
-      <div className="grid gap-3">
-        {areas.map((a) => (
-          <Link
-            key={a.id}
-            to={`/map/${a.id}`}
-            className="rounded border px-4 py-3 bg-white hover:bg-slate-50"
-          >
-            {a.name}
-          </Link>
-        ))}
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-primary">Select CTMT Elevation</h1>
+        <div className="text-sm space-x-3">
+          <Link to="/" className="k-btn px-4 py-2">Home</Link>
+          <Link to="/admin" className="k-btn px-4 py-2">Admin</Link>
+        </div>
       </div>
+
+      {loading ? (
+        <div className="k-card">Loading…</div>
+      ) : (
+        <>
+          <div className="grid md:grid-cols-2 gap-4">
+            {areas.map((a) => (
+              <button
+                key={a.id}
+                onClick={() => nav(`/map/${a.id}`)}
+                className="k-card text-left hover:shadow-lg transition"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-slate-800">{a.name}</div>
+                  <span className="text-xs text-slate-500">Tap to open</span>
+                </div>
+                <div className="mt-3 text-sm text-slate-600">
+                  {a.mapPath?.startsWith("data:")
+                    ? "Custom map uploaded"
+                    : "Using placeholder map (upload in Admin)"}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="k-card space-y-3">
+            <p className="font-medium">RHR/RCIC?</p>
+            <div className="flex items-center gap-6">
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="rhr"
+                  checked={rhrChoice === "no"}
+                  onChange={() => setRhrChoice("no")}
+                />
+                <span>No</span>
+              </label>
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="rhr"
+                  checked={rhrChoice === "yes"}
+                  onChange={() => setRhrChoice("yes")}
+                />
+                <span>Yes</span>
+              </label>
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button
+                className={`k-btn ${rhrChoice !== "no" ? "opacity-60 cursor-not-allowed" : ""}`}
+                disabled={rhrChoice !== "no"}
+                onClick={onRhrNo}
+              >
+                Continue (No)
+              </button>
+              <button
+                className={`k-btn ${rhrChoice !== "yes" ? "opacity-60 cursor-not-allowed" : ""}`}
+                disabled={rhrChoice !== "yes"}
+                onClick={onRhrYes}
+              >
+                Continue (Yes)
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

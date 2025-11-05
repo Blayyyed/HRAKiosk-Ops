@@ -1,21 +1,7 @@
 [
-  {
-    "id": "DW-114",
-    "name": "Drywell 114' North",
-    "mapPath": "/maps/placeholder.svg",
-    "doseRate_mrem_hr": 35,
-    "contamination_cpm": 1200
-  },
-  {
-    "id": "DW-147",
-    "name": "Drywell 147' South",
-    "mapPath": "/maps/placeholder.svg",
-    "doseRate_mrem_hr": 22
-  },
-  {
-    "id": "RB-161",
-    "name": "Rx Bldg 161' East",
-    "mapPath": "/maps/placeholder.svg",
-    "doseRate_mrem_hr": 5
-  }
+  { "id": "CT121", "name": "121’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
+  { "id": "CT135", "name": "135’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
+  { "id": "CT161", "name": "161’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
+  { "id": "CT185", "name": "185’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
+  { "id": "CT208", "name": "208’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" }
 ]

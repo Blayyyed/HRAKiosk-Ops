@@ -19,7 +19,7 @@ const Acknowledge: React.FC = () => {
             <li>Workers must know their dose estimate. Document expected dose on trip ticket. </li>
             <li>Workers must only enter areas they have been briefed on.</li>
             <li>Entry into High Radiation Areas is controlled by Technical Specifications. Failure to comply with these requirements can result in additional worker dose and NRC violations. Personnel are authorized to enter ONLY area(s) briefed on.</li>
-            <li>I understand this alone does not allow access to a HRA without completing the briefing process with RP at the Drywell Control Point.</li>
+            <li>I understand this alone does not allow access to a HRA without contacting RP to verify I am on the correct RWP and no changes.</li>
           </ol>
 
           <div className="pt-4">

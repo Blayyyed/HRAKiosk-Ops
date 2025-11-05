@@ -10,14 +10,14 @@ const Welcome: React.FC = () => {
         <h1 className="text-3xl font-bold text-primary mb-4">Welcome to the HRA Kiosk</h1>
         <div className="k-card space-y-4">
           <p className="text-slate-700">
-            This kiosk guides your team through <strong>High Radiation Area (HRA)</strong> entry in a clear, repeatable way. 
-            It standardizes the steps before your HRA brief so you can focus on the critical details.
+            This kiosk guides you through <strong>High Radiation Area (HRA)</strong> entry in a clear, repeatable way. 
+            It standardizes the steps before your HRA brief so you can focus on the critical details relayed from RP.
           </p>
           <ul className="list-disc pl-6 text-slate-700 space-y-2">
-            <li>Prepare your team for the HRA brief by acknowelding you understand some of the requirements to enter a High Radiation Area.</li>
-            <li>Choose your Drywell elevation and easily mark where you will be working.</li>
-            <li>Verify your WO dose allows you to reasonably complete your job before showing up for the HRA brief</li>
-            <li>Record badge numbers + WO # and notate if overhead is needed. RP Tech in the field will be able to get overhead data before you show up for the brief in most cases.</li>
+            <li>This is a pilot program aimed to limit the time needed for interacting with RP.</li>
+            <li>This is currently only for Ops Rounds</li>
+            <li>Acknowedge you understand the requirements to enter a High Radiation Area</li>
+            <li>RP can be contacted via x2169 or in person to let them know you have completed your entry requirements and they will verify you are on the correct RWP then make a Narrative Log Entry</li>
           </ul>
           <div className="pt-2">
             {/* ✅ Continue goes to /ack */}

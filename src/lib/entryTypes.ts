@@ -2,36 +2,22 @@
 export type Area = {
   id: string;
   name: string;
+  mapPath: string;                 // data URL or /maps/*.png
+  category?: "CTMT" | "RHR";       // new: distinguishes which page shows it
   elevation?: string;
-  mapPath: string;
-  doseRate_mrem_hr?: number;
-  contamination_cpm?: number;
-  hfc?: string;
-  notes?: string;
 };
 
-export type EntryStatus = "entry_pending" | "closed";
+export type EntryStatus = "entry_pending" | "no_action" | "complete";
 
 export type EntryRecord = {
   id: string;
   timestamp: string;
   areaId: string;
   areaName: string;
-  // map pin position (0..1) relative
   spotX: number;
   spotY: number;
-  // optional snapshot of the map with pin
   mapSnapshotDataUrl?: string;
-
-  // 🔹 Multiple badges now supported
   badges: string[];
-
-  // work order (string)
   workOrder: string;
-
-  // overhead info (optional)
-  overheadNeeded?: boolean;
-  overheadHeight?: string;
-
   status: EntryStatus;
 };
