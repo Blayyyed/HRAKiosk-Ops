@@ -1,21 +1,26 @@
 [
   {
-    "id": "DW-114",
-    "name": "Drywell 114' North",
+    "id": "CT_FALLBACK_1",
+    "name": "CTMT Elevation 100",
     "mapPath": "/maps/placeholder.svg",
-    "doseRate_mrem_hr": 35,
-    "contamination_cpm": 1200
+    "category": "CTMT"
   },
   {
-    "id": "DW-147",
-    "name": "Drywell 147' South",
+    "id": "CT_FALLBACK_2",
+    "name": "CTMT Elevation 120",
     "mapPath": "/maps/placeholder.svg",
-    "doseRate_mrem_hr": 22
+    "category": "CTMT"
   },
   {
-    "id": "RB-161",
-    "name": "Rx Bldg 161' East",
+    "id": "RHR_FALLBACK_1",
+    "name": "RHR Pump A",
     "mapPath": "/maps/placeholder.svg",
-    "doseRate_mrem_hr": 5
+    "category": "RHR"
+  },
+  {
+    "id": "RHR_FALLBACK_2",
+    "name": "RHR Pump B",
+    "mapPath": "/maps/placeholder.svg",
+    "category": "RHR"
   }
 ]
