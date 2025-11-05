@@ -8,6 +8,8 @@ import Login from './pages/Login';
 import Welcome from './pages/Welcome';
 import Acknowledge1 from './pages/Acknowledge1';
 import Thanks from './pages/Thanks';
+import CTMTScroll from './pages/CTMTScroll';
+import RHRScroll from './pages/RHRScroll';
 
 import { useAuth } from './auth/AuthContext';
 
@@ -38,6 +40,8 @@ const App: React.FC = () => {
             <Route path="/" element={<Welcome />} />
             <Route path="/ack" element={<Acknowledge1 />} />
             <Route path="/areas" element={<Home />} />
+            <Route path="/ctmt" element={<CTMTScroll />} />
+            <Route path="/rhr" element={<RHRScroll />} />
 
             <Route path="/map/:areaId" element={<MapSelect />} />
             <Route path="/final/:areaId" element={<Finalize />} />
