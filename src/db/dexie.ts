@@ -15,34 +15,21 @@ export class HraDB extends Dexie {
       entries: "id,timestamp,areaId,status",
     });
 
-<<<<<<< HEAD
-    // v2: add category index and upgrade existing rows
+    // v2: add category index and backfill legacy rows
     this.version(2)
       .stores({
         areas: "id,name,category",
         entries: "id,timestamp,areaId,status",
       })
       .upgrade(async (tx) => {
-        const tbl = tx.table("areas");
-        await tbl.toCollection().modify((a: any) => {
-          if (!a.category) a.category = "CTMT";
-        });
-=======
-    this.version(2)
-      .stores({
-        areas: 'id,name,category',
-        entries: 'id,timestamp,areaId,status',
-      })
-      .upgrade(async (tx) => {
         await tx
-          .table<Area>('areas')
+          .table<Area>("areas")
           .toCollection()
           .modify((area) => {
             if (!area.category) {
-              area.category = 'CTMT';
+              area.category = "CTMT";
             }
           });
->>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
       });
   }
 }

@@ -1,11 +1,37 @@
-<<<<<<< HEAD
 [
-  { "id": "CT121", "name": "121’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
-  { "id": "CT135", "name": "135’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
-  { "id": "CT161", "name": "161’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
-  { "id": "CT185", "name": "185’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
-  { "id": "CT208", "name": "208’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" }
+  {
+    "id": "CT121",
+    "name": "121’ CTMT",
+    "mapPath": "/maps/placeholder.svg",
+    "category": "CTMT",
+    "elevation": "121 ft"
+  },
+  {
+    "id": "CT135",
+    "name": "135’ CTMT",
+    "mapPath": "/maps/placeholder.svg",
+    "category": "CTMT",
+    "elevation": "135 ft"
+  },
+  {
+    "id": "CT161",
+    "name": "161’ CTMT",
+    "mapPath": "/maps/placeholder.svg",
+    "category": "CTMT",
+    "elevation": "161 ft"
+  },
+  {
+    "id": "CT185",
+    "name": "185’ CTMT",
+    "mapPath": "/maps/placeholder.svg",
+    "category": "CTMT",
+    "elevation": "185 ft"
+  },
+  {
+    "id": "CT208",
+    "name": "208’ CTMT",
+    "mapPath": "/maps/placeholder.svg",
+    "category": "CTMT",
+    "elevation": "208 ft"
+  }
 ]
-=======
-[]
->>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
