@@ -4,6 +4,7 @@ export type Area = {
   name: string;
   elevation?: string;
   mapPath: string;
+  category?: "CTMT" | "RHR";
   doseRate_mrem_hr?: number;
   contamination_cpm?: number;
   hfc?: string;
