@@ -228,7 +228,7 @@ const AdminPage: React.FC = () => {
     setAdminError(null);
     setDeletingId(area.id);
     try {
-      await db.areas.delete(area.id);
+      awawait db.areas.where('id').equals(area.id).delete();
       await loadAreas();
     } catch (error) {
       console.error("Failed to delete map", error);
