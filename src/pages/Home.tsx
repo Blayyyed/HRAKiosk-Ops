@@ -1,3 +1,4 @@
+cat > src/pages/Home.tsx <<'EOF'
 // src/pages/Home.tsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -21,23 +22,16 @@ const Home: React.FC = () => {
   const loadAreas = async () => {
     setLoading(true);
     const count = await db.areas.count();
-    if (count === 0) {
-      await seedMock();
-    }
+    if (count === 0) await seedMock();
     const list = await db.areas.where("category").equals("CTMT").sortBy("name");
     setAreas(list as Area[]);
     setLoading(false);
   };
 
-  useEffect(() => {
-    loadAreas();
-  }, []);
+  useEffect(() => { loadAreas(); }, []);
 
   const onContinue = async () => {
-    if (rhrChoice === "yes") {
-      nav("/rhr");
-      return;
-    }
+    if (rhrChoice === "yes") return nav("/rhr");
     const rec: EntryRecord = {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
@@ -87,25 +81,14 @@ const Home: React.FC = () => {
             <p className="font-medium">RHR/RCIC?</p>
             <div className="flex items-center gap-6">
               <label className="inline-flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="rhr"
-                  checked={rhrChoice === "no"}
-                  onChange={() => setRhrChoice("no")}
-                />
+                <input type="radio" name="rhr" checked={rhrChoice === "no"} onChange={() => setRhrChoice("no")} />
                 <span>No</span>
               </label>
               <label className="inline-flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="rhr"
-                  checked={rhrChoice === "yes"}
-                  onChange={() => setRhrChoice("yes")}
-                />
+                <input type="radio" name="rhr" checked={rhrChoice === "yes"} onChange={() => setRhrChoice("yes")} />
                 <span>Yes</span>
               </label>
             </div>
-
             <div className="flex justify-start pt-1">
               <button
                 className={`k-btn ${!rhrChoice ? "opacity-60 cursor-not-allowed" : ""}`}
@@ -123,3 +106,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+EOF
