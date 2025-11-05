@@ -1,4 +1,4 @@
-cat > src/pages/Home.tsx <<'EOF'
+
 // src/pages/Home.tsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -106,4 +106,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-EOF
