@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Home from './pages/Home';
+import Home from './pages/CTMTScroll';
 import MapSelect from './pages/MapSelect';
 import Finalize from './pages/Finalize';
 import Admin from './pages/Admin';
