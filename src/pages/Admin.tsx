@@ -12,7 +12,7 @@ const fileToDataUrl = (file: File) =>
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result ?? ""));
     reader.onerror = () =>
-      reject(reader.error ?? new Error("Unable to read the selected file."));
+      reject(readr.error ?? new Error("Unable to read the selected file."));
     reader.readAsDataURL(file);
   });
 
@@ -228,7 +228,7 @@ const AdminPage: React.FC = () => {
     setAdminError(null);
     setDeletingId(area.id);
     try {
-await t db.areas.where('id').equals(area.id).delete();
+await db.areas.where('id').equals(area.id).delete();
       await loadAreas();
     } catch (error) {
       console.error("Failed to delete map", error);
