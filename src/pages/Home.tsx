@@ -47,6 +47,8 @@ const Home: React.FC = () => {
       spotX: 0.5,
       spotY: 0.5,
       status: "entry_pending",
+      badges: [],
+      workOrder: ""
     };
     await db.entries.add(rec);
     nav("/thanks");
