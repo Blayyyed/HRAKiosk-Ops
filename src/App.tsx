@@ -1,17 +1,18 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Home from './pages/Home';
-import MapSelect from './pages/MapSelect';
-import Finalize from './pages/Finalize';
-import Admin from './pages/Admin';
-import Login from './pages/Login';
-import Welcome from './pages/Welcome';
-import Acknowledge1 from './pages/Acknowledge1';
-import Thanks from './pages/Thanks';
-import CTMTScroll from './pages/CTMTScroll';
-import RHRScroll from './pages/RHRScroll';
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Home from "./pages/Home";
+import MapSelect from "./pages/MapSelect";
+import Finalize from "./pages/Finalize";
+import Admin from "./pages/Admin";
+import Login from "./pages/Login";
+import Welcome from "./pages/Welcome";
+import Acknowledge from "./pages/Acknowledge1";
+import Thanks from "./pages/Thanks";
+import CTMTScroll from "./pages/CTMTScroll";
+import RHRScroll from "./pages/RHRScroll";
+import { OperatorProvider } from "./contexts/OperatorContext";
 
-import { useAuth } from './auth/AuthContext';
+import { useAuth } from "./auth/AuthContext";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { loggedIn } = useAuth();

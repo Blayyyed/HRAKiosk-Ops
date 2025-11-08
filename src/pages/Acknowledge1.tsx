@@ -46,7 +46,7 @@ const Acknowledge: React.FC = () => {
       workRequest: workRequest.trim(),
       badges: badges,
     });
-    navigate("/home");
+    navigate("/ctmt");
   };
 
   return (
