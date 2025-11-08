@@ -1,11 +1,7 @@
-<<<<<<< HEAD
 [
-  { "id": "CT121", "name": "121’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
-  { "id": "CT135", "name": "135’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
-  { "id": "CT161", "name": "161’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
-  { "id": "CT185", "name": "185’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" },
-  { "id": "CT208", "name": "208’ CTMT", "mapPath": "/maps/placeholder.svg", "category": "CTMT" }
+  { "id": "CT121", "name": "121’ CTMT", "category": "CTMT", "mapPath": "/maps/placeholder.svg" },
+  { "id": "CT135", "name": "135’ CTMT", "category": "CTMT", "mapPath": "/maps/placeholder.svg" },
+  { "id": "CT161", "name": "161’ CTMT", "category": "CTMT", "mapPath": "/maps/placeholder.svg" },
+  { "id": "CT185", "name": "185’ CTMT", "category": "CTMT", "mapPath": "/maps/placeholder.svg" },
+  { "id": "CT208", "name": "208’ CTMT", "category": "CTMT", "mapPath": "/maps/placeholder.svg" }
 ]
-=======
-[]
->>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
