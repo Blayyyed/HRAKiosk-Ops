@@ -38,16 +38,16 @@ const Home: React.FC = () => {
       nav("/rhr");
       return;
     }
-    // rhrChoice === "no"
-   const rec: EntryRecord = {
-  id: crypto.randomUUID(),
-  timestamp: new Date().toISOString(),
-  areaId: "CTMT_ROUND",
-  areaName: "CTMT Group (RHR/RCIC: No)",
-  spotX: 0.5,
-  spotY: 0.5,
-  status: "entry_pending",
-};
+    // rhrChoice === "no" — record an entry and finish
+    const rec: EntryRecord = {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      areaId: "CTMT_ROUND",
+      areaName: "CTMT Group (RHR/RCIC: No)",
+      spotX: 0.5,
+      spotY: 0.5,
+      status: "entry_pending",
+    };
     await db.entries.add(rec);
     nav("/thanks");
   };
@@ -81,6 +81,7 @@ const Home: React.FC = () => {
             ))}
           </div>
 
+          {/* RHR/RCIC prompt with ONE Continue button */}
           <div className="k-card space-y-3">
             <p className="font-medium">RHR/RCIC?</p>
             <div className="flex items-center gap-6">
