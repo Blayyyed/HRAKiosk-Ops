@@ -1,6 +1,17 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useOperatorFlow } from "../contexts/OperatorContext";
+cat > src/pages/Home.tsx <<'EOF'
+// src/pages/Home.tsx
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { db } from "../db/dexie";
+import { seedMock } from "../db/seed";
+import type { EntryRecord } from "../lib/entryTypes";
+
+type Area = {
+  id: string;
+  name: string;
+  mapPath?: string;
+  category?: "CTMT" | "RHR";
+};
 
 const Home: React.FC = () => {
   const navigate = useNavigate();

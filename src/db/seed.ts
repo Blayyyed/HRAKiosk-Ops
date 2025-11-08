@@ -1,9 +1,9 @@
 // src/db/seed.ts
 import { db } from "./dexie";
 import areas from "../data/mock_areas.json";
-import type { Area } from "../lib/entryTypes";
-
-type AreaSeedGroup = { ctmt: Area[]; rhr: Area[] };
+=======
+import { db } from './dexie';
+>>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
 
 export async function seedMock(): Promise<void> {
   const seedData = areas as unknown as AreaSeedGroup;
@@ -20,6 +20,13 @@ export async function seedMock(): Promise<void> {
 
   await db.transaction("rw", db.areas, async () => {
     await db.areas.clear();
-    await db.areas.bulkAdd([...ctmt, ...rhr]);
+<<<<<<< HEAD
+    const seeded = (areas as any[]).map((a) => ({
+      ...a,
+      category: a.category || "CTMT",
+    }));
+    await db.areas.bulkAdd(seeded);
+=======
+>>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
   });
 }

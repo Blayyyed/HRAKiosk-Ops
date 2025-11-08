@@ -3,14 +3,21 @@
 export type Area = {
   id: string;
   name: string;
-  category: "CTMT" | "RHR";
+  mapPath: string;                 // data URL or /maps/*.png
+  category?: "CTMT" | "RHR";       // new: distinguishes which page shows it
+  elevation?: string;
+<<<<<<< HEAD
+=======
   mapPath: string;
-  flags?: {
-    needsInterlocksBrief?: boolean;
-    tempShielding?: boolean;
-    respProtectionZone?: boolean;
-  };
+  category?: "CTMT" | "RHR";
+  doseRate_mrem_hr?: number;
+  contamination_cpm?: number;
+  hfc?: string;
+  notes?: string;
+>>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
 };
+
+export type EntryStatus = "entry_pending" | "no_action" | "complete";
 
 export type EntryRecord = {
   id: string;
@@ -21,19 +28,6 @@ export type EntryRecord = {
   spotY?: number;
   mapSnapshotDataUrl?: string;
   badges: string[];
-  badgesMasked?: string[];
-  badgesHashed?: string[];
-  workRequest?: string;
-  planningNote?: string;
-  acks?: {
-    rwp: boolean;
-    briefed: boolean;
-    dose: boolean;
-    onlyAreasBriefed: boolean;
-  };
-  status: "entry_pending" | "ready" | "briefed" | "entered" | "denied";
-  exportedAt?: string;
+  workOrder: string;
+  status: EntryStatus;
 };
-
-export const isCTMT = (area: Area): boolean => area.category === "CTMT";
-export const isRHR = (area: Area): boolean => area.category === "RHR";
