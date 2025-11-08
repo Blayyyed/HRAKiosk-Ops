@@ -26,6 +26,8 @@ export type EntryAcknowledgment = {
   briefed: boolean;
   dose: boolean;
   onlyAreasBriefed: boolean;
+  useMapsForTripTicket: boolean;
+  contactRpForQuestions: boolean;
 };
 
 export type EntryRecord = {

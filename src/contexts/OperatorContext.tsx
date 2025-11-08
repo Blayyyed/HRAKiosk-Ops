@@ -5,6 +5,8 @@ interface AckState {
   briefed: boolean;
   dose: boolean;
   onlyAreasBriefed: boolean;
+  useMapsForTripTicket: boolean;
+  contactRpForQuestions: boolean;
 }
 
 interface CrewDraft {

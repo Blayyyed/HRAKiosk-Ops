@@ -3,15 +3,25 @@ import { useNavigate } from "react-router-dom";
 import { useOperatorFlow } from "../contexts/OperatorContext";
 import BadgeInput from "../components/BadgeInput";
 
+const INITIAL_CHECKS = {
+  rwp: false,
+  briefed: false,
+  dose: false,
+  onlyAreasBriefed: false,
+  useMapsForTripTicket: false,
+  contactRpForQuestions: false,
+};
+
+type CheckField = keyof typeof INITIAL_CHECKS;
+type CheckState = Record<CheckField, boolean>;
+
 const Acknowledge: React.FC = () => {
   const navigate = useNavigate();
-  const { setAcks, setCrew, crew } = useOperatorFlow();
-  const [checks, setChecks] = useState({
-    rwp: false,
-    briefed: false,
-    dose: false,
-    onlyAreasBriefed: false,
-  });
+  const { acks, setAcks, setCrew, crew } = useOperatorFlow();
+  const [checks, setChecks] = useState<CheckState>(() => ({
+    ...INITIAL_CHECKS,
+    ...(acks ?? {}),
+  }));
   const [workRequest, setWorkRequest] = useState(crew?.workRequest ?? "");
   const [badges, setBadges] = useState<string[]>(crew?.badges ?? []);
 
@@ -33,7 +43,7 @@ const Acknowledge: React.FC = () => {
   const hasBadges = badges.length > 0;
   const canContinue = allChecked && hasWorkRequest && hasBadges;
 
-  const toggle = (field: keyof typeof checks) => {
+  const toggle = (field: CheckField) => {
     setChecks((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
@@ -100,6 +110,27 @@ const Acknowledge: React.FC = () => {
                 onChange={() => toggle("onlyAreasBriefed")}
               />
               <span>Workers must only enter areas they have been briefed on.</span>
+            </label>
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={checks.useMapsForTripTicket}
+                onChange={() => toggle("useMapsForTripTicket")}
+              />
+              <span>I will use the maps to fill out my Radiation Worker Trip Ticket.</span>
+            </label>
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={checks.contactRpForQuestions}
+                onChange={() => toggle("contactRpForQuestions")}
+              />
+              <span>
+                I will contact RP if I have any questions or prior to entering any RP Brief
+                Required areas.
+              </span>
             </label>
           </div>
 
