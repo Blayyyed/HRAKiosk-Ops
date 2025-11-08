@@ -1,50 +1,55 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { db } from '../db/dexie';
-import { Area, EntryRecord } from '../lib/entryTypes';
-import areasJson from '../data/mock_areas.json';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import areasJson from "../data/mock_areas.json";
+import { db } from "../db/dexie";
+import type { Area } from "../lib/entryTypes";
+import { useOperatorFlow } from "../contexts/OperatorContext";
 
-const FALLBACK_AREAS: Area[] = (areasJson as Area[]).map((area) => ({
+const FALLBACK_RHR: Area[] = ((areasJson as unknown as { rhr: Area[] }).rhr || []).map((area) => ({
   ...area,
-  mapPath: area.mapPath || '/maps/placeholder.svg',
-  category: area.category ?? 'CTMT',
+  category: "RHR",
+  mapPath: area.mapPath || "/maps/placeholder.svg",
 }));
 
+const isCustomMap = (mapPath: string): boolean => mapPath.startsWith("data:");
+
 const RHRScroll: React.FC = () => {
-  const nav = useNavigate();
+  const navigate = useNavigate();
+  const { acks, updateDraft } = useOperatorFlow();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!acks) {
+      navigate("/ack", { replace: true });
+    }
+  }, [acks, navigate]);
 
   useEffect(() => {
     let active = true;
-    const load = async () => {
+    const loadAreas = async () => {
       setLoading(true);
       setError(null);
       try {
-        const rows = await db.areas.where('category').equals('RHR').toArray();
-        if (!active) {
-          return;
-        }
-        if (rows.length > 0) {
-          rows.sort((a, b) => a.name.localeCompare(b.name));
-          setAreas(rows);
+        const list = await db.areas.where("category").equals("RHR").sortBy("name");
+        if (!active) return;
+        if (list.length === 0) {
+          setAreas([...FALLBACK_RHR]);
         } else {
-          const fallback = FALLBACK_AREAS.filter((a) => (a.category ?? 'CTMT') === 'RHR');
-          fallback.sort((a, b) => a.name.localeCompare(b.name));
-          setAreas(fallback);
+          setAreas(
+            list.map((area) => ({
+              ...area,
+              category: "RHR",
+              mapPath: area.mapPath || "/maps/placeholder.svg",
+            }))
+          );
         }
       } catch (err) {
-        console.error('Failed to load RHR maps', err);
-        if (!active) {
-          return;
-        }
-        setError('Unable to load RHR maps. Please try again.');
-        const fallback = FALLBACK_AREAS.filter((a) => (a.category ?? 'CTMT') === 'RHR');
-        fallback.sort((a, b) => a.name.localeCompare(b.name));
-        setAreas(fallback);
+        console.error("Failed to load RHR maps", err);
+        if (!active) return;
+        setError("Unable to load RHR/RCIC maps. Showing defaults.");
+        setAreas([...FALLBACK_RHR]);
       } finally {
         if (active) {
           setLoading(false);
@@ -52,107 +57,64 @@ const RHRScroll: React.FC = () => {
       }
     };
 
-    void load();
+    loadAreas();
     return () => {
       active = false;
     };
   }, []);
 
-  const onComplete = async () => {
-    setSubmitError(null);
-    setSaving(true);
-    try {
-      const record: EntryRecord = {
-        id: crypto.randomUUID(),
-        timestamp: new Date().toISOString(),
-        areaId: 'RHR_REVIEW',
-        areaName: 'RHR/RCIC Maps Reviewed',
-        spotX: 0.5,
-        spotY: 0.5,
-        badges: [],
-        workOrder: '',
-        status: 'entry_pending',
-      };
-
-      await db.entries.add(record);
-      nav('/thanks');
-    } catch (err) {
-      console.error('Failed to record RHR review', err);
-      setSubmitError('Unable to submit review confirmation. Please retry.');
-    } finally {
-      setSaving(false);
-    }
+  const continueToFinalize = () => {
+    updateDraft({ areaId: "RHR_GROUP", areaName: "RHR/RCIC Group" });
+    navigate("/finalize");
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-6 min-h-screen">
-        <header>
-          <h1 className="text-3xl font-bold text-slate-900">RHR / RCIC Maps</h1>
-          <p className="text-slate-600 mt-1">
-            Scroll through the maps below for RHR / RCIC access planning.
-          </p>
-        </header>
-
-        {error && (
-          <div className="bg-rose-100 border border-rose-200 text-rose-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
-
-        <div className="flex-1 overflow-auto">
-          {loading ? (
-            <div className="text-center text-slate-600 py-10">Loading RHR maps…</div>
-          ) : areas.length === 0 ? (
-            <div className="text-center text-slate-600 py-10 space-y-2">
-              <p>No RHR / RCIC maps available.</p>
-              <p className="text-sm text-slate-500">
-                Upload maps from the Admin panel, or commit RHR entries to{' '}
-                <code className="px-1">src/data/mock_areas.json</code>{' '}
-                so they deploy with every Vercel build.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2">
-              {areas.map((area) => (
-                <div key={area.id} className="bg-white border rounded-lg shadow-sm overflow-hidden">
-                  <div className="bg-slate-50 px-4 py-2 border-b">
-                    <h2 className="text-lg font-semibold text-slate-800">{area.name}</h2>
-                  </div>
-                  <div className="p-4">
-                    <img
-                      src={area.mapPath || '/maps/placeholder.svg'}
-                      alt={area.name}
-                      className="w-full rounded-md border object-contain max-h-80"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {submitError && (
-          <div className="bg-rose-100 border border-rose-200 text-rose-700 px-4 py-3 rounded">
-            {submitError}
-          </div>
-        )}
-
-        <div className="bg-white border rounded-lg shadow-sm p-6 flex flex-col gap-4">
-          <p className="text-lg font-semibold text-slate-800">
-            Finished reviewing the RHR / RCIC maps?
-          </p>
-          <button
-            onClick={onComplete}
-            disabled={saving}
-            className={`px-5 py-2 rounded text-white font-medium ${
-              saving ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {saving ? 'Submitting…' : 'Complete Review'}
-          </button>
-        </div>
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold text-primary">RHR / RCIC Maps</h1>
+        <p className="text-slate-600">Review all available RHR/RCIC layouts before finalizing your crew details.</p>
       </div>
+
+      {loading ? (
+        <div className="k-card">Loading…</div>
+      ) : (
+        <>
+          {error && (
+            <div className="k-card border-amber-300 bg-amber-50 text-amber-700">{error}</div>
+          )}
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {areas.map((area) => (
+              <div key={area.id} className="k-card p-0 overflow-hidden">
+                <div className="px-4 py-3 border-b flex items-center justify-between">
+                  <h2 className="font-semibold text-slate-800">{area.name}</h2>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      isCustomMap(area.mapPath)
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {isCustomMap(area.mapPath) ? "Custom map" : "Default"}
+                  </span>
+                </div>
+                <div className="p-4 bg-slate-50">
+                  <img
+                    src={area.mapPath}
+                    alt={area.name}
+                    className="w-full rounded-md border object-contain max-h-80"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end">
+            <button className="k-btn" onClick={continueToFinalize}>
+              Continue
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
