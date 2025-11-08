@@ -44,11 +44,10 @@ const Home: React.FC = () => {
       timestamp: new Date().toISOString(),
       areaId: "CTMT_ROUND",
       areaName: "CTMT Group (RHR/RCIC: No)",
-      spotX: 0.5,
-      spotY: 0.5,
+      spX: 0.5,
+      spY: 0.5,
       status: "entry_pending",
       badges: [],
-      workOrder: ""
     };
     await db.entries.add(rec);
     nav("/thanks");

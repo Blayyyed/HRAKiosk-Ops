@@ -10,6 +10,17 @@ type Area = {
   mapPath?: string; // can be /maps/*.png or data URL
 };
 
+type AreaSeed = { ctmt: Area[]; rhr: Area[] };
+
+const STATIC_AREAS: Area[] = (
+  ((areasJson as unknown as AreaSeed).ctmt || []).concat(
+    (areasJson as unknown as AreaSeed).rhr || []
+  )
+).map((area) => ({
+  ...area,
+  mapPath: area.mapPath || "/maps/placeholder.svg",
+}));
+
 const CANVAS_MAX_WIDTH = 960;
 
 const MapSelect: React.FC = () => {
@@ -48,9 +59,7 @@ const MapSelect: React.FC = () => {
           return;
         }
         // fallback to static JSON
-        const fromJson = (areasJson as Area[]).find(
-          (a) => String(a.id) === String(areaId)
-        );
+        const fromJson = STATIC_AREAS.find((a) => String(a.id) === String(areaId));
         if (active && fromJson) {
           setArea(fromJson);
           setStatus("ready");

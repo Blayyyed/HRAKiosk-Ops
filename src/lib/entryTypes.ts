@@ -6,6 +6,7 @@ export type Area = {
   name: string;
   category?: "CTMT" | "RHR";
   mapPath: string; // data URL or /maps/* from public
+  ctmtId?: string;
   flags?: {
     needsInterlocksBrief?: boolean;
     tempShielding?: boolean;
@@ -24,35 +25,27 @@ export type EntryStatus =
 // Saved operator submission. Some fields are optional depending on flow.
 export type EntryRecord = {
   id: string;
-  timestamp: string;
-
   areaId: string;
   areaName: string;
-
-  // Optional for CTMT/RHR scroll submissions without a specific pin
-  spotX?: number;
-  spotY?: number;
-
-  // Canvas snapshot (if a pin was placed on a map)
-  mapSnapshotDataUrl?: string;
-
-  // Optional metadata used in later workflows (kept optional for compatibility)
-  badgesMasked?: string[];  // e.g., ["****31314", "****32412"]
-  badgesHashed?: string[];  // sha-256 hex, if you implement hashing later
-  leadBadge?: string;
+  spX: number;
+  spY: number;
+  status: EntryStatus;
+  badges: string[];
+  timestamp: string;
+  notes?: string;
   workOrder?: string;
-  planningNote?: string;
 
-  // Required confirm checks from Acknowledge page (present if that page was used)
+  // Existing optional metadata retained for downstream workflows.
+  mapSnapshotDataUrl?: string;
+  overheadNeeded?: boolean;
+  overheadHeight?: string;
   acks?: {
     rwp: boolean;
     briefed: boolean;
     dose: boolean;
     onlyAreasBriefed: boolean;
   };
-
-  status: EntryStatus;
-  exportedAt?: string; // set when exporting/purging
+  exportedAt?: string;
 };
 
 // Small type guards if you want to filter quickly

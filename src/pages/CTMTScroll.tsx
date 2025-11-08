@@ -4,11 +4,15 @@ import { db } from '../db/dexie';
 import { Area, EntryRecord } from '../lib/entryTypes';
 import areasJson from '../data/mock_areas.json';
 
-const FALLBACK_AREAS: Area[] = (areasJson as Area[]).map((area) => ({
-  ...area,
-  mapPath: area.mapPath || '/maps/placeholder.svg',
-  category: area.category ?? 'CTMT',
-}));
+type AreaSeed = { ctmt: Area[]; rhr: Area[] };
+
+const FALLBACK_CTMT: Area[] = ((areasJson as unknown as AreaSeed).ctmt || []).map(
+  (area) => ({
+    ...area,
+    mapPath: area.mapPath || '/maps/placeholder.svg',
+    category: area.category ?? 'CTMT',
+  })
+);
 
 const CTMTScroll: React.FC = () => {
   const nav = useNavigate();
@@ -32,7 +36,7 @@ const CTMTScroll: React.FC = () => {
           rows.sort((a, b) => a.name.localeCompare(b.name));
           setAreas(rows);
         } else {
-          const fallback = FALLBACK_AREAS.filter((a) => (a.category ?? 'CTMT') === 'CTMT');
+          const fallback = [...FALLBACK_CTMT];
           fallback.sort((a, b) => a.name.localeCompare(b.name));
           setAreas(fallback);
         }
@@ -42,7 +46,7 @@ const CTMTScroll: React.FC = () => {
           return;
         }
         setError('Unable to load CTMT maps. Please try again.');
-        const fallback = FALLBACK_AREAS.filter((a) => (a.category ?? 'CTMT') === 'CTMT');
+        const fallback = [...FALLBACK_CTMT];
         fallback.sort((a, b) => a.name.localeCompare(b.name));
         setAreas(fallback);
       } finally {
@@ -111,10 +115,9 @@ const CTMTScroll: React.FC = () => {
         timestamp: new Date().toISOString(),
         areaId: 'CTMT_ROUND',
         areaName: 'CTMT Group (RHR/RCIC: No)',
-        spotX: 0.5,
-        spotY: 0.5,
+        spX: 0.5,
+        spY: 0.5,
         badges: [],
-        workOrder: '',
         status: 'entry_pending',
       };
 

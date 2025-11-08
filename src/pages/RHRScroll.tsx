@@ -4,10 +4,12 @@ import { db } from '../db/dexie';
 import { Area, EntryRecord } from '../lib/entryTypes';
 import areasJson from '../data/mock_areas.json';
 
-const FALLBACK_AREAS: Area[] = (areasJson as Area[]).map((area) => ({
+type AreaSeed = { ctmt: Area[]; rhr: Area[] };
+
+const FALLBACK_RHR: Area[] = ((areasJson as unknown as AreaSeed).rhr || []).map((area) => ({
   ...area,
   mapPath: area.mapPath || '/maps/placeholder.svg',
-  category: area.category ?? 'CTMT',
+  category: area.category ?? 'RHR',
 }));
 
 const RHRScroll: React.FC = () => {
@@ -32,7 +34,7 @@ const RHRScroll: React.FC = () => {
           rows.sort((a, b) => a.name.localeCompare(b.name));
           setAreas(rows);
         } else {
-          const fallback = FALLBACK_AREAS.filter((a) => (a.category ?? 'CTMT') === 'RHR');
+          const fallback = [...FALLBACK_RHR];
           fallback.sort((a, b) => a.name.localeCompare(b.name));
           setAreas(fallback);
         }
@@ -42,7 +44,7 @@ const RHRScroll: React.FC = () => {
           return;
         }
         setError('Unable to load RHR maps. Please try again.');
-        const fallback = FALLBACK_AREAS.filter((a) => (a.category ?? 'CTMT') === 'RHR');
+        const fallback = [...FALLBACK_RHR];
         fallback.sort((a, b) => a.name.localeCompare(b.name));
         setAreas(fallback);
       } finally {
@@ -67,10 +69,9 @@ const RHRScroll: React.FC = () => {
         timestamp: new Date().toISOString(),
         areaId: 'RHR_REVIEW',
         areaName: 'RHR/RCIC Maps Reviewed',
-        spotX: 0.5,
-        spotY: 0.5,
+        spX: 0.5,
+        spY: 0.5,
         badges: [],
-        workOrder: '',
         status: 'entry_pending',
       };
 
