@@ -1,23 +1,32 @@
 // src/lib/entryTypes.ts
 
+export type AreaCategory = "CTMT" | "RHR";
+
 export type Area = {
   id: string;
   name: string;
-  mapPath: string;                 // data URL or /maps/*.png
-  category?: "CTMT" | "RHR";       // new: distinguishes which page shows it
-  elevation?: string;
-<<<<<<< HEAD
-=======
   mapPath: string;
-  category?: "CTMT" | "RHR";
+  category?: AreaCategory;
+  elevation?: string;
   doseRate_mrem_hr?: number;
   contamination_cpm?: number;
   hfc?: string;
   notes?: string;
->>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
 };
 
-export type EntryStatus = "entry_pending" | "no_action" | "complete";
+export type EntryStatus =
+  | "entry_pending"
+  | "ready"
+  | "briefed"
+  | "entered"
+  | "denied";
+
+export type EntryAcknowledgment = {
+  rwp: boolean;
+  briefed: boolean;
+  dose: boolean;
+  onlyAreasBriefed: boolean;
+};
 
 export type EntryRecord = {
   id: string;
@@ -28,6 +37,13 @@ export type EntryRecord = {
   spotY?: number;
   mapSnapshotDataUrl?: string;
   badges: string[];
-  workOrder: string;
+  badgesMasked?: string[];
+  badgesHashed?: string[];
+  workRequest?: string;
+  planningNote?: string;
+  overheadNeeded?: boolean;
+  overheadHeight?: number;
+  acks?: EntryAcknowledgment;
   status: EntryStatus;
+  exportedAt?: string;
 };
