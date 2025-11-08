@@ -7,6 +7,12 @@ interface AckState {
   onlyAreasBriefed: boolean;
 }
 
+interface CrewDraft {
+  workRequest: string;
+  badges: string[];
+  leadBadge?: string;
+}
+
 interface DraftEntry {
   areaId?: string;
   areaName?: string;
@@ -19,6 +25,9 @@ interface OperatorContextValue {
   acks: AckState | null;
   setAcks: (acks: AckState) => void;
   clearAcks: () => void;
+  crew: CrewDraft | null;
+  setCrew: (crew: CrewDraft) => void;
+  clearCrew: () => void;
   draft: DraftEntry | null;
   updateDraft: (partial: DraftEntry | null) => void;
 }
@@ -27,6 +36,7 @@ const OperatorContext = createContext<OperatorContextValue | undefined>(undefine
 
 export const OperatorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [acks, setAcksState] = useState<AckState | null>(null);
+  const [crew, setCrewState] = useState<CrewDraft | null>(null);
   const [draft, setDraft] = useState<DraftEntry | null>(null);
 
   const setAcks = (next: AckState) => {
@@ -35,6 +45,25 @@ export const OperatorProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const clearAcks = () => {
     setAcksState(null);
+  };
+
+  const setCrew = (next: CrewDraft) => {
+    const trimmedBadges = next.badges.map((badge) => badge.trim()).filter((badge) => badge.length > 0);
+    const normalizedLead =
+      next.leadBadge && trimmedBadges.includes(next.leadBadge)
+        ? next.leadBadge
+        : trimmedBadges.length > 0
+        ? trimmedBadges[0]
+        : undefined;
+    setCrewState({
+      workRequest: next.workRequest.trim(),
+      badges: trimmedBadges,
+      leadBadge: normalizedLead,
+    });
+  };
+
+  const clearCrew = () => {
+    setCrewState(null);
   };
 
   const updateDraft = (partial: DraftEntry | null) => {
@@ -50,10 +79,13 @@ export const OperatorProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       acks,
       setAcks,
       clearAcks,
+      crew,
+      setCrew,
+      clearCrew,
       draft,
       updateDraft,
     }),
-    [acks, draft]
+    [acks, crew, draft]
   );
 
   return <OperatorContext.Provider value={value}>{children}</OperatorContext.Provider>;

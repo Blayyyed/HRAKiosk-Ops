@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useOperatorFlow } from "../contexts/OperatorContext";
 
 const Home: React.FC = () => {
@@ -22,13 +22,6 @@ const Home: React.FC = () => {
         <button className="k-btn w-full" onClick={() => navigate("/ctmt")}>CTMT Maps</button>
       </div>
 
-      <div className="k-card space-y-2 text-sm text-slate-600">
-        <p>Need to make updates?</p>
-        <div className="flex gap-3">
-          <Link to="/admin" className="k-btn px-4 py-2 text-sm">Admin Dashboard</Link>
-          <Link to="/" className="k-btn px-4 py-2 text-sm">Welcome</Link>
-        </div>
-      </div>
     </div>
   );
 };

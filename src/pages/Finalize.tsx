@@ -8,19 +8,38 @@ import { hashBadge, maskBadge } from "../lib/crypto";
 
 const Finalize: React.FC = () => {
   const navigate = useNavigate();
-  const { acks, draft, updateDraft, clearAcks } = useOperatorFlow();
+  const { acks, draft, updateDraft, clearAcks, crew, clearCrew } = useOperatorFlow();
 
   const [badges, setBadges] = useState<BadgeValue[]>([]);
   const [workRequest, setWorkRequest] = useState("");
   const [planningNote, setPlanningNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initializedFromCrew, setInitializedFromCrew] = useState(false);
 
   useEffect(() => {
     if (!acks) {
       navigate("/ack", { replace: true });
     }
   }, [acks, navigate]);
+
+  useEffect(() => {
+    if (!crew || initializedFromCrew) {
+      return;
+    }
+    if (crew.workRequest && workRequest.length === 0) {
+      setWorkRequest(crew.workRequest);
+    }
+    if (badges.length === 0 && crew.badges.length > 0) {
+      setBadges(
+        crew.badges.map((badge, index) => ({
+          value: badge,
+          isLead: crew.leadBadge ? crew.leadBadge === badge : index === 0,
+        }))
+      );
+    }
+    setInitializedFromCrew(true);
+  }, [crew, initializedFromCrew, badges.length, workRequest.length]);
 
   const areaName = draft?.areaName ?? "Pending area";
   const readyToSave = useMemo(() => {
@@ -62,6 +81,7 @@ const Finalize: React.FC = () => {
       await db.entries.add(record);
       updateDraft(null);
       clearAcks();
+      clearCrew();
       navigate("/thanks");
     } catch (err) {
       console.error("Failed to save entry", err);

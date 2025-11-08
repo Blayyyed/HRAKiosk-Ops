@@ -1,31 +1,58 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOperatorFlow } from "../contexts/OperatorContext";
+import BadgeInput, { BadgeValue } from "../components/BadgeInput";
 
 const Acknowledge: React.FC = () => {
   const navigate = useNavigate();
-  const { setAcks } = useOperatorFlow();
+  const { setAcks, setCrew, crew } = useOperatorFlow();
   const [checks, setChecks] = useState({
     rwp: false,
     briefed: false,
     dose: false,
     onlyAreasBriefed: false,
   });
+  const [workRequest, setWorkRequest] = useState(crew?.workRequest ?? "");
+  const [badges, setBadges] = useState<BadgeValue[]>([]);
+
+  useEffect(() => {
+    if (crew) {
+      setWorkRequest((prev) => (prev.length > 0 ? prev : crew.workRequest));
+      if (badges.length === 0 && crew.badges.length > 0) {
+        setBadges(
+          crew.badges.map((badge, index) => ({
+            value: badge,
+            isLead: crew.leadBadge ? crew.leadBadge === badge : index === 0,
+          }))
+        );
+      }
+    }
+  }, [crew, badges.length]);
 
   const allChecked = useMemo(
     () => Object.values(checks).every(Boolean),
     [checks]
   );
 
+  const hasWorkRequest = workRequest.trim().length > 0;
+  const hasBadges = badges.length > 0;
+  const canContinue = allChecked && hasWorkRequest && hasBadges;
+
   const toggle = (field: keyof typeof checks) => {
     setChecks((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
   const onContinue = () => {
-    if (!allChecked) {
+    if (!canContinue) {
       return;
     }
     setAcks(checks);
+    const lead = badges.find((badge) => badge.isLead) ?? badges[0];
+    setCrew({
+      workRequest: workRequest.trim(),
+      badges: badges.map((badge) => badge.value),
+      leadBadge: lead?.value,
+    });
     navigate("/home");
   };
 
@@ -83,10 +110,38 @@ const Acknowledge: React.FC = () => {
             </label>
           </div>
 
+          <div className="border-t pt-4 space-y-4">
+            <div className="space-y-1">
+              <label className="block text-sm font-semibold text-slate-700" htmlFor="workRequest">
+                Work Request #
+              </label>
+              <p className="text-xs text-slate-500">
+                Required before continuing. Provide the work request identifier for this crew.
+              </p>
+            </div>
+            <input
+              id="workRequest"
+              className="border rounded px-3 py-2 w-full"
+              value={workRequest}
+              onChange={(event) => setWorkRequest(event.target.value)}
+              placeholder="Enter Work Request"
+            />
+
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <div className="text-sm font-semibold text-slate-700">Crew badges</div>
+                <p className="text-xs text-slate-500">
+                  Enter each badge number and press Add. Mark one badge as the crew lead.
+                </p>
+              </div>
+              <BadgeInput badges={badges} onChange={setBadges} />
+            </div>
+          </div>
+
           <div className="pt-4">
             <button
-              className={`k-btn ${!allChecked ? "opacity-60 cursor-not-allowed" : ""}`}
-              disabled={!allChecked}
+              className={`k-btn ${!canContinue ? "opacity-60 cursor-not-allowed" : ""}`}
+              disabled={!canContinue}
               onClick={onContinue}
             >
               Continue

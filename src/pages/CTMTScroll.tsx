@@ -6,6 +6,7 @@ import { seedMock } from "../db/seed";
 import type { Area, EntryRecord } from "../lib/entryTypes";
 import { useOperatorFlow } from "../contexts/OperatorContext";
 import MapLightbox from "../components/MapLightbox";
+import { hashBadge, maskBadge } from "../lib/crypto";
 
 type AreaSeed = { ctmt: Area[] };
 
@@ -19,12 +20,13 @@ const isCustomMap = (mapPath: string): boolean => mapPath.startsWith("data:");
 
 const CTMTScroll: React.FC = () => {
   const navigate = useNavigate();
-  const { acks, updateDraft, clearAcks } = useOperatorFlow();
+  const { acks, updateDraft, clearAcks, crew, clearCrew } = useOperatorFlow();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rhrChoice, setRhrChoice] = useState<"yes" | "no" | null>(null);
   const [preview, setPreview] = useState<{ title: string; image: string } | null>(null);
+  const [flowError, setFlowError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!acks) {
@@ -83,19 +85,31 @@ const CTMTScroll: React.FC = () => {
       return;
     }
     if (rhrChoice === "no") {
+      if (!crew || crew.badges.length === 0 || crew.workRequest.trim().length === 0) {
+        setFlowError("Work Request and crew badges are required. Please complete the acknowledgement step.");
+        navigate("/ack");
+        return;
+      }
+      setFlowError(null);
+      const maskedBadges = crew.badges.map((badge) => maskBadge(badge));
+      const hashedBadges = await Promise.all(crew.badges.map((badge) => hashBadge(badge)));
+      const leadMasked = crew.leadBadge ? maskBadge(crew.leadBadge) : maskedBadges[0];
       const record: EntryRecord = {
         id: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
         areaId: "CTMT_ROUND",
         areaName: "CTMT Group (RHR/RCIC: No)",
         status: "entry_pending",
-        badgesMasked: [],
-        badgesHashed: [],
+        badgesMasked: maskedBadges,
+        badgesHashed: hashedBadges,
+        leadBadge: leadMasked,
+        workRequest: crew.workRequest,
         acks: acks ?? undefined,
       };
       await db.entries.add(record);
       updateDraft(null);
       clearAcks();
+      clearCrew();
       navigate("/thanks");
     }
   };
@@ -115,6 +129,9 @@ const CTMTScroll: React.FC = () => {
         <>
           {error && (
             <div className="k-card border-amber-300 bg-amber-50 text-amber-700">{error}</div>
+          )}
+          {flowError && (
+            <div className="k-card border-rose-300 bg-rose-50 text-rose-700">{flowError}</div>
           )}
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
