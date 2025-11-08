@@ -1,32 +1,64 @@
 // src/pages/Home.tsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import areasJson from "../data/mock_areas.json";
 import { db } from "../db/dexie";
 import { seedMock } from "../db/seed";
-import type { EntryRecord } from "../lib/entryTypes";
+import type { Area, EntryRecord } from "../lib/entryTypes";
 
-type Area = {
-  id: string;
-  name: string;
-  mapPath?: string;
-  category?: "CTMT" | "RHR";
-};
+type AreaSeed = { ctmt: Area[]; rhr: Area[] };
+
+const FALLBACK_CTMT: Area[] = ((areasJson as unknown as AreaSeed).ctmt || []).map(
+  (area) => ({
+    ...area,
+    category: area.category ?? "CTMT",
+    mapPath: area.mapPath || "/maps/placeholder.svg",
+  })
+);
 
 const Home: React.FC = () => {
   const nav = useNavigate();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [rhrChoice, setRhrChoice] = useState<"yes" | "no" | null>(null);
 
   const loadAreas = async () => {
     setLoading(true);
-    const count = await db.areas.count();
-    if (count === 0) {
-      await seedMock();
+    setError(null);
+
+    try {
+      let list = await db.areas.where("category").equals("CTMT").sortBy("name");
+
+      if (list.length === 0) {
+        const count = await db.areas.count();
+        if (count === 0) {
+          await seedMock();
+        }
+        list = await db.areas.where("category").equals("CTMT").sortBy("name");
+      }
+
+      if (list.length === 0) {
+        const fallback = [...FALLBACK_CTMT];
+        fallback.sort((a, b) => a.name.localeCompare(b.name));
+        setAreas(fallback);
+      } else {
+        const normalized = list.map((area) => ({
+          ...area,
+          mapPath: area.mapPath || "/maps/placeholder.svg",
+          category: area.category ?? "CTMT",
+        }));
+        setAreas(normalized);
+      }
+    } catch (err) {
+      console.error("Failed to load CTMT maps", err);
+      setError("Unable to load CTMT maps. Showing defaults.");
+      const fallback = [...FALLBACK_CTMT];
+      fallback.sort((a, b) => a.name.localeCompare(b.name));
+      setAreas(fallback);
+    } finally {
+      setLoading(false);
     }
-    const list = await db.areas.where("category").equals("CTMT").sortBy("name");
-    setAreas(list as Area[]);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -67,20 +99,34 @@ const Home: React.FC = () => {
         <div className="k-card">Loading…</div>
       ) : (
         <>
-          <div className="grid md:grid-cols-2 gap-4">
-            {areas.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => nav(`/map/${a.id}`)}
-                className="k-card text-left hover:shadow-lg transition"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold text-slate-800">{a.name}</div>
-                  <span className="text-xs text-slate-500">Tap to open</span>
+          {error && (
+            <div className="k-card border-amber-300 bg-amber-50 text-amber-700">
+              {error}
+            </div>
+          )}
+
+          {areas.length === 0 ? (
+            <div className="k-card text-center text-slate-600">
+              No CTMT maps available. Please upload maps via the Admin page.
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {areas.map((area) => (
+                <div key={area.id} className="k-card p-0 overflow-hidden">
+                  <div className="px-4 py-3 border-b">
+                    <h2 className="font-semibold text-slate-800">{area.name}</h2>
+                  </div>
+                  <div className="p-4 bg-slate-50">
+                    <img
+                      src={area.mapPath || "/maps/placeholder.svg"}
+                      alt={area.name}
+                      className="w-full rounded-md border object-contain max-h-80"
+                    />
+                  </div>
                 </div>
-              </button>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* RHR/RCIC prompt with ONE Continue button */}
           <div className="k-card space-y-3">
