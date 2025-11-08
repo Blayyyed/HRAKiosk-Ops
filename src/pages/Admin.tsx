@@ -270,9 +270,8 @@ const AdminPage: React.FC = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="font-semibold text-lg">Ops Rounds</div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs font-medium text-slate-500">
                       {getRoundNote(record, category)}
-                      {record.areaName ? ` • ${record.areaName}` : ""}
                     </div>
                     <div className="text-xs text-slate-500">
                       {new Date(record.timestamp).toLocaleString()}
