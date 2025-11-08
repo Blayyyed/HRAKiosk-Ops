@@ -1,6 +1,6 @@
 // src/db/dexie.ts
 import Dexie from "dexie";
-import { EntryRecord, Area } from "../lib/entryTypes";
+import type { Area, EntryRecord } from "../lib/entryTypes";
 
 export class HraDB extends Dexie {
   areas!: Dexie.Table<Area, string>;
@@ -9,17 +9,28 @@ export class HraDB extends Dexie {
   constructor() {
     super("hra_kiosk_db");
 
-    // v1 (legacy)
     this.version(1).stores({
       areas: "id,name",
       entries: "id,timestamp,areaId,status",
     });
 
-    // v2: add category index and backfill legacy rows
+HEAD
+    // v2: add category index and upgrade existing rows
     this.version(2)
       .stores({
         areas: "id,name,category",
         entries: "id,timestamp,areaId,status",
+      })
+      .upgrade(async (tx) => {
+        const tbl = tx.table("areas");
+        await tbl.toCollection().modify((a: any) => {
+          if (!a.category) a.category = "CTMT";
+        });
+=======
+    this.version(2)
+      .stores({
+        areas: 'id,name,category',
+        entries: 'id,timestamp,areaId,status',
       })
       .upgrade(async (tx) => {
         await tx
@@ -30,6 +41,7 @@ export class HraDB extends Dexie {
               area.category = "CTMT";
             }
           });
+>>>>>>> origin/codex/implement-ctmt-and-rhr-maps-flow-x31wew
       });
   }
 }

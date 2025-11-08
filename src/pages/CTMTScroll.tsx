@@ -1,50 +1,70 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { db } from '../db/dexie';
-import { Area, EntryRecord } from '../lib/entryTypes';
-import areasJson from '../data/mock_areas.json';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import areasJson from "../data/mock_areas.json";
+import { db } from "../db/dexie";
+import { seedMock } from "../db/seed";
+import type { Area, EntryRecord } from "../lib/entryTypes";
+import { useOperatorFlow } from "../contexts/OperatorContext";
+import MapLightbox from "../components/MapLightbox";
+import { hashBadge, maskBadge } from "../lib/crypto";
 
-const FALLBACK_AREAS: Area[] = (areasJson as Area[]).map((area) => ({
+type AreaSeed = { ctmt: Area[] };
+
+const FALLBACK_CTMT: Area[] = ((areasJson as unknown as AreaSeed).ctmt || []).map((area) => ({
   ...area,
-  mapPath: area.mapPath || '/maps/placeholder.svg',
-  category: area.category ?? 'CTMT',
+  category: "CTMT",
+  mapPath: area.mapPath || "/maps/placeholder.svg",
 }));
 
+const isCustomMap = (mapPath: string): boolean => mapPath.startsWith("data:");
+
 const CTMTScroll: React.FC = () => {
-  const nav = useNavigate();
+  const navigate = useNavigate();
+  const { acks, updateDraft, clearAcks, crew, clearCrew } = useOperatorFlow();
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [needsRhr, setNeedsRhr] = useState<'yes' | 'no' | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [rhrChoice, setRhrChoice] = useState<"yes" | "no" | null>(null);
+  const [preview, setPreview] = useState<{ title: string; image: string } | null>(null);
+  const [flowError, setFlowError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!acks) {
+      navigate("/ack", { replace: true });
+    }
+  }, [acks, navigate]);
 
   useEffect(() => {
     let active = true;
-    const load = async () => {
+    const loadAreas = async () => {
       setLoading(true);
       setError(null);
       try {
-        const rows = await db.areas.where('category').equals('CTMT').toArray();
-        if (!active) {
-          return;
+        let list = await db.areas.where("category").equals("CTMT").sortBy("name");
+        if (list.length === 0) {
+          const count = await db.areas.count();
+          if (count === 0) {
+            await seedMock();
+            list = await db.areas.where("category").equals("CTMT").sortBy("name");
+          }
         }
-        if (rows.length > 0) {
-          rows.sort((a, b) => a.name.localeCompare(b.name));
-          setAreas(rows);
+        if (!active) return;
+        if (list.length === 0) {
+          setAreas([...FALLBACK_CTMT]);
         } else {
-          const fallback = FALLBACK_AREAS.filter((a) => (a.category ?? 'CTMT') === 'CTMT');
-          fallback.sort((a, b) => a.name.localeCompare(b.name));
-          setAreas(fallback);
+          setAreas(
+            list.map((area) => ({
+              ...area,
+              category: "CTMT",
+              mapPath: area.mapPath || "/maps/placeholder.svg",
+            }))
+          );
         }
       } catch (err) {
-        console.error('Failed to load CTMT maps', err);
-        if (!active) {
-          return;
-        }
-        setError('Unable to load CTMT maps. Please try again.');
-        const fallback = FALLBACK_AREAS.filter((a) => (a.category ?? 'CTMT') === 'CTMT');
-        fallback.sort((a, b) => a.name.localeCompare(b.name));
-        setAreas(fallback);
+        console.error("Failed to load CTMT maps", err);
+        if (!active) return;
+        setError("Unable to load CTMT maps. Showing defaults.");
+        setAreas([...FALLBACK_CTMT]);
       } finally {
         if (active) {
           setLoading(false);
@@ -52,144 +72,149 @@ const CTMTScroll: React.FC = () => {
       }
     };
 
-    void load();
+    loadAreas();
     return () => {
       active = false;
     };
   }, []);
 
-  const areaCards = useMemo(() => {
-    if (areas.length === 0) {
-      return (
-        <div className="text-center text-slate-600 py-10 space-y-2">
-          <p>No CTMT maps available.</p>
-          <p className="text-sm text-slate-500">
-            Use the Admin panel to upload maps, or commit CTMT entries to{' '}
-            <code className="px-1">src/data/mock_areas.json</code>{' '}
-            so they ship with each Vercel build.
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="grid gap-6 md:grid-cols-2">
-        {areas.map((area) => (
-          <div key={area.id} className="bg-white border rounded-lg shadow-sm overflow-hidden">
-            <div className="bg-slate-50 px-4 py-2 border-b">
-              <h2 className="text-lg font-semibold text-slate-800">{area.name}</h2>
-            </div>
-            <div className="p-4">
-              <img
-                src={area.mapPath || '/maps/placeholder.svg'}
-                alt={area.name}
-                className="w-full rounded-md border object-contain max-h-80"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }, [areas]);
-
   const onContinue = async () => {
-    if (!needsRhr) {
+    if (rhrChoice === "yes") {
+      updateDraft({ areaId: "RHR_GROUP", areaName: "RHR/RCIC Group" });
+      navigate("/rhr");
       return;
     }
-
-    setError(null);
-
-    if (needsRhr === 'yes') {
-      nav('/rhr');
-      return;
-    }
-
-    setSaving(true);
-    try {
+    if (rhrChoice === "no") {
+      if (!crew || crew.badges.length === 0 || crew.workRequest.trim().length === 0) {
+        setFlowError("Work Request and crew badges are required. Please complete the acknowledgement step.");
+        navigate("/ack");
+        return;
+      }
+      setFlowError(null);
+      const normalizedBadges = crew.badges.map((badge) => badge.trim()).filter((badge) => badge.length > 0);
+      if (normalizedBadges.length === 0) {
+        setFlowError("Crew badges are missing. Please re-enter them.");
+        navigate("/ack");
+        return;
+      }
+      const maskedBadges = normalizedBadges.map((badge) => maskBadge(badge));
+      const hashedBadges = await Promise.all(normalizedBadges.map((badge) => hashBadge(badge)));
       const record: EntryRecord = {
         id: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
-        areaId: 'CTMT_ROUND',
-        areaName: 'CTMT Group (RHR/RCIC: No)',
-        spotX: 0.5,
-        spotY: 0.5,
-        badges: [],
-        workOrder: '',
-        status: 'entry_pending',
+        areaId: "CTMT_ROUND",
+        areaName: "CTMT Group (RHR/RCIC: No)",
+        status: "entry_pending",
+        badges: normalizedBadges,
+        badgesMasked: maskedBadges,
+        badgesHashed: hashedBadges,
+        workRequest: crew.workRequest,
+        acks: acks ?? undefined,
       };
-
       await db.entries.add(record);
-      nav('/thanks');
-    } catch (err) {
-      console.error('Failed to create entry record', err);
-      setError('Unable to create entry. Please retry.');
-    } finally {
-      setSaving(false);
+      updateDraft(null);
+      clearAcks();
+      clearCrew();
+      navigate("/thanks");
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-6 min-h-screen">
-        <header>
-          <h1 className="text-3xl font-bold text-slate-900">CTMT Maps</h1>
-          <p className="text-slate-600 mt-1">
-            Scroll through the available CTMT maps below to review the layout before continuing.
-          </p>
-        </header>
-
-        <div className="flex-1 overflow-auto">
-          {loading ? (
-            <div className="text-center text-slate-600 py-10">Loading CTMT maps…</div>
-          ) : (
-            areaCards
-          )}
-        </div>
-
-        {error && (
-          <div className="bg-rose-100 border border-rose-200 text-rose-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
-
-        <div className="bg-white border rounded-lg shadow-sm p-6 space-y-4">
-          <p className="text-lg font-semibold text-slate-800">RHR/RCIC access needed?</p>
-          <div className="flex flex-wrap gap-6 text-slate-700">
-            <label className="inline-flex items-center gap-2">
-              <input
-                type="radio"
-                name="needsRhr"
-                value="no"
-                checked={needsRhr === 'no'}
-                onChange={() => setNeedsRhr('no')}
-              />
-              <span>No</span>
-            </label>
-            <label className="inline-flex items-center gap-2">
-              <input
-                type="radio"
-                name="needsRhr"
-                value="yes"
-                checked={needsRhr === 'yes'}
-                onChange={() => setNeedsRhr('yes')}
-              />
-              <span>Yes</span>
-            </label>
-          </div>
-
-          <div className="flex justify-end">
-            <button
-              className={`px-5 py-2 rounded text-white font-medium ${
-                needsRhr ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-400'
-              } ${saving ? 'opacity-70 cursor-wait' : ''}`}
-              onClick={onContinue}
-              disabled={!needsRhr || saving}
-            >
-              Continue
-            </button>
-          </div>
-        </div>
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold text-primary">CTMT Maps</h1>
+        <p className="text-slate-600">
+          Scroll to review all elevations. Updated uploads show as custom maps.
+        </p>
       </div>
+
+      {loading ? (
+        <div className="k-card">Loading…</div>
+      ) : (
+        <>
+          {error && (
+            <div className="k-card border-amber-300 bg-amber-50 text-amber-700">{error}</div>
+          )}
+          {flowError && (
+            <div className="k-card border-rose-300 bg-rose-50 text-rose-700">{flowError}</div>
+          )}
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {areas.map((area) => (
+              <div key={area.id} className="k-card p-0 overflow-hidden">
+                <div className="px-4 py-3 border-b flex items-center justify-between">
+                  <h2 className="font-semibold text-slate-800">{area.name}</h2>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      isCustomMap(area.mapPath)
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {isCustomMap(area.mapPath) ? "Custom map" : "Default"}
+                  </span>
+                </div>
+                <div className="p-4 bg-slate-50 space-y-2">
+                  <button
+                    type="button"
+                    className="block w-full"
+                    onClick={() => setPreview({ title: area.name, image: area.mapPath })}
+                    aria-label={`Enlarge ${area.name} map`}
+                  >
+                    <img
+                      src={area.mapPath}
+                      alt={area.name}
+                      className="w-full rounded-md border object-contain max-h-96 cursor-zoom-in"
+                    />
+                  </button>
+                  <p className="text-xs text-slate-500 text-center">Tap to enlarge</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="k-card space-y-3">
+            <p className="font-medium">RHR/RCIC access needed?</p>
+            <div className="flex items-center gap-6">
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="rhr"
+                  checked={rhrChoice === "no"}
+                  onChange={() => setRhrChoice("no")}
+                />
+                <span>No</span>
+              </label>
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="rhr"
+                  checked={rhrChoice === "yes"}
+                  onChange={() => setRhrChoice("yes")}
+                />
+                <span>Yes</span>
+              </label>
+            </div>
+            <div>
+              <button
+                className={`k-btn ${!rhrChoice ? "opacity-60 cursor-not-allowed" : ""}`}
+                disabled={!rhrChoice}
+                onClick={onContinue}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+      {preview && (
+        <MapLightbox
+          open
+          title={preview.title}
+          imageSrc={preview.image}
+          onClose={() => setPreview(null)}
+        />
+      )}
     </div>
   );
 };

@@ -10,7 +10,9 @@ import MapCard from '../components/MapCard';
  */
 const AreaPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const area = (areasData as any as Area[]).find((a) => a.id === id);
+  const seed = areasData as unknown as { ctmt: Area[]; rhr: Area[] };
+  const areaList = [...(seed.ctmt || []), ...(seed.rhr || [])] as Area[];
+  const area = areaList.find((a) => a.id === id);
   const rwps = (rwpsData as any as RWP[]).filter((rwp) => rwp.areaId === id);
 
   if (!area) {
@@ -28,7 +30,7 @@ const AreaPage: React.FC = () => {
               to={`/entry/${rwp.id}`}
               className="text-blue-600 underline"
             >
-              {rwp.task} ({rwp.workOrder})
+              {rwp.task} ({rwp.workRequest})
             </Link>
           </li>
         ))}
