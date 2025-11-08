@@ -23,15 +23,8 @@ const getCategoryForEntry = (entry: EntryRecord, area?: Area): QueueEntry["categ
   return "CTMT";
 };
 
-const getRoundNote = (entry: EntryRecord, category: QueueEntry["category"]): string => {
-  if (entry.areaId === "CTMT_ROUND") {
-    return "CTMT Only";
-  }
-  if (entry.areaId === "RHR_GROUP" || category === "RHR") {
-    return "CTMT and RHR/RCIC";
-  }
-  return category === "RHR" ? "CTMT and RHR/RCIC" : "CTMT Only";
-};
+const getRoundNote = (category: QueueEntry["category"]): string =>
+  category === "RHR" ? "CTMT and RHR/RCIC" : "CTMT Only";
 
 const AdminPage: React.FC = () => {
   const { logout } = useAuth();
@@ -271,7 +264,7 @@ const AdminPage: React.FC = () => {
                   <div>
                     <div className="font-semibold text-lg">Ops Rounds</div>
                     <div className="text-xs font-medium text-slate-500">
-                      {getRoundNote(record, category)}
+                      {getRoundNote(category)}
                     </div>
                     <div className="text-xs text-slate-500">
                       {new Date(record.timestamp).toLocaleString()}
