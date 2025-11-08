@@ -39,19 +39,15 @@ const Home: React.FC = () => {
       return;
     }
     // rhrChoice === "no"
-    const rec: EntryRecord = {
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
-      areaId: "CTMT_ROUND",
-      areaName: "CTMT Group (RHR/RCIC: No)",
-      spotX: 0.5,
-      spotY: 0.5,
-      mapSnapshotDataUrl: undefined,
-      badgesMasked: [],
-      badgesHashed: [],
-      workOrder: "",
-      status: "entry_pending",
-    };
+   const rec: EntryRecord = {
+  id: crypto.randomUUID(),
+  timestamp: new Date().toISOString(),
+  areaId: "CTMT_ROUND",
+  areaName: "CTMT Group (RHR/RCIC: No)",
+  spotX: 0.5,
+  spotY: 0.5,
+  status: "entry_pending",
+};
     await db.entries.add(rec);
     nav("/thanks");
   };
