@@ -5,6 +5,7 @@ import { db } from "../db/dexie";
 import { seedMock } from "../db/seed";
 import type { Area, EntryRecord } from "../lib/entryTypes";
 import { useOperatorFlow } from "../contexts/OperatorContext";
+import MapLightbox from "../components/MapLightbox";
 
 type AreaSeed = { ctmt: Area[] };
 
@@ -23,6 +24,7 @@ const CTMTScroll: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rhrChoice, setRhrChoice] = useState<"yes" | "no" | null>(null);
+  const [preview, setPreview] = useState<{ title: string; image: string } | null>(null);
 
   useEffect(() => {
     if (!acks) {
@@ -130,12 +132,20 @@ const CTMTScroll: React.FC = () => {
                     {isCustomMap(area.mapPath) ? "Custom map" : "Default"}
                   </span>
                 </div>
-                <div className="p-4 bg-slate-50">
-                  <img
-                    src={area.mapPath}
-                    alt={area.name}
-                    className="w-full rounded-md border object-contain max-h-80"
-                  />
+                <div className="p-4 bg-slate-50 space-y-2">
+                  <button
+                    type="button"
+                    className="block w-full"
+                    onClick={() => setPreview({ title: area.name, image: area.mapPath })}
+                    aria-label={`Enlarge ${area.name} map`}
+                  >
+                    <img
+                      src={area.mapPath}
+                      alt={area.name}
+                      className="w-full rounded-md border object-contain max-h-96 cursor-zoom-in"
+                    />
+                  </button>
+                  <p className="text-xs text-slate-500 text-center">Tap to enlarge</p>
                 </div>
               </div>
             ))}
@@ -174,6 +184,14 @@ const CTMTScroll: React.FC = () => {
             </div>
           </div>
         </>
+      )}
+      {preview && (
+        <MapLightbox
+          open
+          title={preview.title}
+          imageSrc={preview.image}
+          onClose={() => setPreview(null)}
+        />
       )}
     </div>
   );

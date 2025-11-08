@@ -30,7 +30,7 @@ const AreaPage: React.FC = () => {
               to={`/entry/${rwp.id}`}
               className="text-blue-600 underline"
             >
-              {rwp.task} ({rwp.workOrder})
+              {rwp.task} ({rwp.workRequest})
             </Link>
           </li>
         ))}

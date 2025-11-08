@@ -54,6 +54,27 @@ export class HraDB extends Dexie {
             }
           });
       });
+
+    this.version(4)
+      .stores({
+        areas: "id,name,category",
+        entries: "id,timestamp,areaId,status",
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table<EntryRecord>("entries")
+          .toCollection()
+          .modify((entry) => {
+            if (!entry.status) {
+              entry.status = "entry_pending";
+            }
+            const legacy = entry as EntryRecord & { workOrder?: string };
+            if (!legacy.workRequest && legacy.workOrder) {
+              legacy.workRequest = legacy.workOrder;
+              delete legacy.workOrder;
+            }
+          });
+      });
   }
 }
 

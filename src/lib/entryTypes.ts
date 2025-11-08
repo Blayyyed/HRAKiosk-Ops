@@ -23,7 +23,7 @@ export type EntryRecord = {
   badgesMasked?: string[];
   badgesHashed?: string[];
   leadBadge?: string;
-  workOrder?: string;
+  workRequest?: string;
   planningNote?: string;
   acks?: {
     rwp: boolean;

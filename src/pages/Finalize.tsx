@@ -11,7 +11,7 @@ const Finalize: React.FC = () => {
   const { acks, draft, updateDraft, clearAcks } = useOperatorFlow();
 
   const [badges, setBadges] = useState<BadgeValue[]>([]);
-  const [workOrder, setWorkOrder] = useState("");
+  const [workRequest, setWorkRequest] = useState("");
   const [planningNote, setPlanningNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +24,8 @@ const Finalize: React.FC = () => {
 
   const areaName = draft?.areaName ?? "Pending area";
   const readyToSave = useMemo(() => {
-    return badges.length > 0 && workOrder.trim().length > 0;
-  }, [badges.length, workOrder]);
+    return badges.length > 0 && workRequest.trim().length > 0;
+  }, [badges.length, workRequest]);
 
   const onSubmit = async () => {
     if (!readyToSave) return;
@@ -53,7 +53,7 @@ const Finalize: React.FC = () => {
         badgesMasked: masked,
         badgesHashed: hashed,
         leadBadge: lead ? maskBadge(lead.value) : undefined,
-        workOrder: workOrder.trim(),
+        workRequest: workRequest.trim(),
         planningNote: planningNote.trim() || undefined,
         acks: acks ?? undefined,
         status: "entry_pending",
@@ -91,20 +91,28 @@ const Finalize: React.FC = () => {
       </div>
 
       <div className="k-card space-y-3">
-        <label className="block text-sm font-medium text-slate-700" htmlFor="workOrder">
-          Work Order #
+        <label className="block text-sm font-medium text-slate-700" htmlFor="workRequest">
+          Work Request #
         </label>
+        <p className="text-xs text-slate-500">
+          Required before entry. Provide the work request identifier for this crew.
+        </p>
         <input
-          id="workOrder"
+          id="workRequest"
           className="border rounded px-3 py-2"
-          value={workOrder}
-          onChange={(event) => setWorkOrder(event.target.value)}
+          value={workRequest}
+          onChange={(event) => setWorkRequest(event.target.value)}
           placeholder="Required"
         />
       </div>
 
       <div className="k-card space-y-3">
-        <label className="block text-sm font-medium text-slate-700">Badges</label>
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-slate-700">Crew badges</label>
+          <p className="text-xs text-slate-500">
+            Enter each badge number and press Add. Mark one badge as the crew lead.
+          </p>
+        </div>
         <BadgeInput badges={badges} onChange={setBadges} />
       </div>
 

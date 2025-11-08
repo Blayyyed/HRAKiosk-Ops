@@ -1,7 +1,7 @@
 [
   {
     "id": "RWP-1001",
-    "workOrder": "WO-55421",
+    "workRequest": "WR-55421",
     "task": "Valve inspection",
     "areaId": "DW-114",
     "entryReqs": {
@@ -14,7 +14,7 @@
   },
   {
     "id": "RWP-1002",
-    "workOrder": "WO-66210",
+    "workRequest": "WR-66210",
     "task": "Pump motor swap",
     "areaId": "DW-147",
     "entryReqs": {
@@ -27,7 +27,7 @@
   },
   {
     "id": "RWP-1003",
-    "workOrder": "WO-77115",
+    "workRequest": "WR-77115",
     "task": "Survey round",
     "areaId": "RB-161",
     "entryReqs": {

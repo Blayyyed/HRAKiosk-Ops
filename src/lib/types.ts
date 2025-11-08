@@ -11,7 +11,7 @@ export type Area = {
 
 export type RWP = {
   id: string;
-  workOrder: string;
+  workRequest: string;
   task: string;
   areaId: string;
   entryReqs: {

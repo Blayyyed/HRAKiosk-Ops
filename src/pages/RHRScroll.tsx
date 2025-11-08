@@ -4,6 +4,7 @@ import areasJson from "../data/mock_areas.json";
 import { db } from "../db/dexie";
 import type { Area } from "../lib/entryTypes";
 import { useOperatorFlow } from "../contexts/OperatorContext";
+import MapLightbox from "../components/MapLightbox";
 
 const FALLBACK_RHR: Area[] = ((areasJson as unknown as { rhr: Area[] }).rhr || []).map((area) => ({
   ...area,
@@ -19,6 +20,7 @@ const RHRScroll: React.FC = () => {
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{ title: string; image: string } | null>(null);
 
   useEffect(() => {
     if (!acks) {
@@ -97,12 +99,20 @@ const RHRScroll: React.FC = () => {
                     {isCustomMap(area.mapPath) ? "Custom map" : "Default"}
                   </span>
                 </div>
-                <div className="p-4 bg-slate-50">
-                  <img
-                    src={area.mapPath}
-                    alt={area.name}
-                    className="w-full rounded-md border object-contain max-h-80"
-                  />
+                <div className="p-4 bg-slate-50 space-y-2">
+                  <button
+                    type="button"
+                    className="block w-full"
+                    onClick={() => setPreview({ title: area.name, image: area.mapPath })}
+                    aria-label={`Enlarge ${area.name} map`}
+                  >
+                    <img
+                      src={area.mapPath}
+                      alt={area.name}
+                      className="w-full rounded-md border object-contain max-h-96 cursor-zoom-in"
+                    />
+                  </button>
+                  <p className="text-xs text-slate-500 text-center">Tap to enlarge</p>
                 </div>
               </div>
             ))}
@@ -114,6 +124,14 @@ const RHRScroll: React.FC = () => {
             </button>
           </div>
         </>
+      )}
+      {preview && (
+        <MapLightbox
+          open
+          title={preview.title}
+          imageSrc={preview.image}
+          onClose={() => setPreview(null)}
+        />
       )}
     </div>
   );

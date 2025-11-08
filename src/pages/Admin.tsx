@@ -267,7 +267,7 @@ const AdminPage: React.FC = () => {
                   <StatusChip status={record.status} />
                 </div>
                 <div className="text-sm text-slate-600 space-y-1">
-                  <div>WO: {record.workOrder || "—"}</div>
+                  <div>Work Request: {record.workRequest || "—"}</div>
                   <div>Badges: {(record.badgesMasked || []).join(", ") || "—"}</div>
                   {record.planningNote && <div>Note: {record.planningNote}</div>}
                 </div>
