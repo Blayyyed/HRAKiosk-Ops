@@ -10,7 +10,6 @@ interface AckState {
 interface CrewDraft {
   workRequest: string;
   badges: string[];
-  leadBadge?: string;
 }
 
 interface DraftEntry {
@@ -49,16 +48,9 @@ export const OperatorProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setCrew = (next: CrewDraft) => {
     const trimmedBadges = next.badges.map((badge) => badge.trim()).filter((badge) => badge.length > 0);
-    const normalizedLead =
-      next.leadBadge && trimmedBadges.includes(next.leadBadge)
-        ? next.leadBadge
-        : trimmedBadges.length > 0
-        ? trimmedBadges[0]
-        : undefined;
     setCrewState({
       workRequest: next.workRequest.trim(),
       badges: trimmedBadges,
-      leadBadge: normalizedLead,
     });
   };
 

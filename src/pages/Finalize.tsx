@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { db } from "../db/dexie";
 import type { EntryRecord } from "../lib/entryTypes";
 import { useOperatorFlow } from "../contexts/OperatorContext";
-import BadgeInput, { BadgeValue } from "../components/BadgeInput";
+import BadgeInput from "../components/BadgeInput";
 import { hashBadge, maskBadge } from "../lib/crypto";
 
 const Finalize: React.FC = () => {
   const navigate = useNavigate();
   const { acks, draft, updateDraft, clearAcks, crew, clearCrew } = useOperatorFlow();
 
-  const [badges, setBadges] = useState<BadgeValue[]>([]);
+  const [badges, setBadges] = useState<string[]>(crew?.badges ?? []);
   const [workRequest, setWorkRequest] = useState("");
   const [planningNote, setPlanningNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -31,12 +31,7 @@ const Finalize: React.FC = () => {
       setWorkRequest(crew.workRequest);
     }
     if (badges.length === 0 && crew.badges.length > 0) {
-      setBadges(
-        crew.badges.map((badge, index) => ({
-          value: badge,
-          isLead: crew.leadBadge ? crew.leadBadge === badge : index === 0,
-        }))
-      );
+      setBadges(crew.badges);
     }
     setInitializedFromCrew(true);
   }, [crew, initializedFromCrew, badges.length, workRequest.length]);
@@ -57,9 +52,14 @@ const Finalize: React.FC = () => {
     setError(null);
 
     try {
-      const masked = badges.map((badge) => maskBadge(badge.value)).filter((value) => value);
-      const hashed = await Promise.all(badges.map((badge) => hashBadge(badge.value)));
-      const lead = badges.find((badge) => badge.isLead);
+      const normalizedBadges = badges.map((badge) => badge.trim()).filter((badge) => badge.length > 0);
+      if (normalizedBadges.length === 0) {
+        setError("At least one badge number is required.");
+        setSaving(false);
+        return;
+      }
+      const masked = normalizedBadges.map((badge) => maskBadge(badge)).filter((value) => value);
+      const hashed = await Promise.all(normalizedBadges.map((badge) => hashBadge(badge)));
 
       const record: EntryRecord = {
         id: crypto.randomUUID(),
@@ -69,9 +69,9 @@ const Finalize: React.FC = () => {
         spotX: draft.spotX,
         spotY: draft.spotY,
         mapSnapshotDataUrl: draft.mapSnapshotDataUrl,
+        badges: normalizedBadges,
         badgesMasked: masked,
         badgesHashed: hashed,
-        leadBadge: lead ? maskBadge(lead.value) : undefined,
         workRequest: workRequest.trim(),
         planningNote: planningNote.trim() || undefined,
         acks: acks ?? undefined,
@@ -129,9 +129,7 @@ const Finalize: React.FC = () => {
       <div className="k-card space-y-3">
         <div className="space-y-1">
           <label className="block text-sm font-medium text-slate-700">Crew badges</label>
-          <p className="text-xs text-slate-500">
-            Enter each badge number and press Add. Mark one badge as the crew lead.
-          </p>
+          <p className="text-xs text-slate-500">Enter each badge number and press Add.</p>
         </div>
         <BadgeInput badges={badges} onChange={setBadges} />
       </div>

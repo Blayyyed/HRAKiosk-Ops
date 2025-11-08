@@ -23,6 +23,16 @@ const getCategoryForEntry = (entry: EntryRecord, area?: Area): QueueEntry["categ
   return "CTMT";
 };
 
+const getRoundNote = (entry: EntryRecord, category: QueueEntry["category"]): string => {
+  if (entry.areaId === "CTMT_ROUND") {
+    return "CTMT Only";
+  }
+  if (entry.areaId === "RHR_GROUP" || category === "RHR") {
+    return "CTMT and RHR/RCIC";
+  }
+  return category === "RHR" ? "CTMT and RHR/RCIC" : "CTMT Only";
+};
+
 const AdminPage: React.FC = () => {
   const { logout } = useAuth();
   const [areas, setAreas] = useState<Area[]>([]);
@@ -255,11 +265,15 @@ const AdminPage: React.FC = () => {
           <div className="k-card text-slate-600">No entries match the selected filters.</div>
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
-            {filteredQueue.map(({ record, area }) => (
+            {filteredQueue.map(({ record, area, category }) => (
               <div key={record.id} className="k-card space-y-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="font-semibold">{record.areaName}</div>
+                    <div className="font-semibold text-lg">Ops Rounds</div>
+                    <div className="text-xs text-slate-500">
+                      {getRoundNote(record, category)}
+                      {record.areaName ? ` • ${record.areaName}` : ""}
+                    </div>
                     <div className="text-xs text-slate-500">
                       {new Date(record.timestamp).toLocaleString()}
                     </div>
@@ -268,7 +282,12 @@ const AdminPage: React.FC = () => {
                 </div>
                 <div className="text-sm text-slate-600 space-y-1">
                   <div>Work Request: {record.workRequest || "—"}</div>
-                  <div>Badges: {(record.badgesMasked || []).join(", ") || "—"}</div>
+                  <div>
+                    Badges: {(record.badges && record.badges.length > 0
+                      ? record.badges
+                      : record.badgesMasked || [])
+                      .join(", ") || "—"}
+                  </div>
                   {record.planningNote && <div>Note: {record.planningNote}</div>}
                 </div>
                 {record.mapSnapshotDataUrl && (

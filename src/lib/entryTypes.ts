@@ -20,9 +20,9 @@ export type EntryRecord = {
   spotX?: number;
   spotY?: number;
   mapSnapshotDataUrl?: string;
+  badges: string[];
   badgesMasked?: string[];
   badgesHashed?: string[];
-  leadBadge?: string;
   workRequest?: string;
   planningNote?: string;
   acks?: {

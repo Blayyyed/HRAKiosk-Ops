@@ -1,21 +1,14 @@
 import React, { useState } from "react";
-import { maskBadge } from "../lib/crypto";
-
-export type BadgeValue = {
-  value: string;
-  isLead: boolean;
-};
 
 interface BadgeInputProps {
-  badges: BadgeValue[];
-  onChange: (next: BadgeValue[]) => void;
+  badges: string[];
+  onChange: (next: string[]) => void;
 }
 
-const normalizeBadges = (values: string[]): string[] => {
-  return values
+const normalizeBadges = (values: string[]): string[] =>
+  values
     .map((badge) => badge.trim())
     .filter((badge) => badge.length > 0);
-};
 
 const BadgeInput: React.FC<BadgeInputProps> = ({ badges, onChange }) => {
   const [input, setInput] = useState("");
@@ -25,11 +18,11 @@ const BadgeInput: React.FC<BadgeInputProps> = ({ badges, onChange }) => {
     if (normalized.length === 0) {
       return;
     }
-    const existing = new Set(badges.map((b) => b.value));
-    const merged: BadgeValue[] = [...badges];
+    const existing = new Set(badges);
+    const merged: string[] = [...badges];
     normalized.forEach((value) => {
       if (!existing.has(value)) {
-        merged.push({ value, isLead: merged.length === 0 });
+        merged.push(value);
       }
     });
     onChange(merged);
@@ -37,21 +30,8 @@ const BadgeInput: React.FC<BadgeInputProps> = ({ badges, onChange }) => {
   };
 
   const removeBadge = (value: string) => {
-    const filtered = badges.filter((badge) => badge.value !== value);
-    if (filtered.length === 0) {
-      onChange([]);
-      return;
-    }
-    if (filtered.some((badge) => badge.isLead)) {
-      onChange(filtered);
-      return;
-    }
-    filtered[0] = { ...filtered[0], isLead: true };
+    const filtered = badges.filter((badge) => badge !== value);
     onChange(filtered);
-  };
-
-  const setLead = (value: string) => {
-    onChange(badges.map((badge) => ({ ...badge, isLead: badge.value === value })));
   };
 
   return (
@@ -78,22 +58,13 @@ const BadgeInput: React.FC<BadgeInputProps> = ({ badges, onChange }) => {
         <div className="flex flex-wrap gap-2">
           {badges.map((badge) => (
             <div
-              key={badge.value}
+              key={badge}
               className="flex items-center gap-2 bg-slate-100 border rounded-full px-3 py-1 text-sm"
             >
-              <span>{maskBadge(badge.value)}</span>
+              <span>{badge}</span>
               <button
                 type="button"
-                onClick={() => setLead(badge.value)}
-                className={`text-xs px-2 py-1 rounded ${
-                  badge.isLead ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-700"
-                }`}
-              >
-                {badge.isLead ? "Lead" : "Make Lead"}
-              </button>
-              <button
-                type="button"
-                onClick={() => removeBadge(badge.value)}
+                onClick={() => removeBadge(badge)}
                 className="text-rose-600"
                 title="Remove badge"
               >

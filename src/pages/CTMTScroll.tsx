@@ -91,18 +91,23 @@ const CTMTScroll: React.FC = () => {
         return;
       }
       setFlowError(null);
-      const maskedBadges = crew.badges.map((badge) => maskBadge(badge));
-      const hashedBadges = await Promise.all(crew.badges.map((badge) => hashBadge(badge)));
-      const leadMasked = crew.leadBadge ? maskBadge(crew.leadBadge) : maskedBadges[0];
+      const normalizedBadges = crew.badges.map((badge) => badge.trim()).filter((badge) => badge.length > 0);
+      if (normalizedBadges.length === 0) {
+        setFlowError("Crew badges are missing. Please re-enter them.");
+        navigate("/ack");
+        return;
+      }
+      const maskedBadges = normalizedBadges.map((badge) => maskBadge(badge));
+      const hashedBadges = await Promise.all(normalizedBadges.map((badge) => hashBadge(badge)));
       const record: EntryRecord = {
         id: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
         areaId: "CTMT_ROUND",
         areaName: "CTMT Group (RHR/RCIC: No)",
         status: "entry_pending",
+        badges: normalizedBadges,
         badgesMasked: maskedBadges,
         badgesHashed: hashedBadges,
-        leadBadge: leadMasked,
         workRequest: crew.workRequest,
         acks: acks ?? undefined,
       };

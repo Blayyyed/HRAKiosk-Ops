@@ -7,9 +7,9 @@ const CSV_HEADERS = [
   "areaId",
   "areaName",
   "status",
+  "badges",
   "badgesMasked",
   "workRequest",
-  "leadBadge",
   "planningNote",
   "exportedAt",
 ];
@@ -28,9 +28,9 @@ export function toCSV(entries: EntryRecord[]): string {
     entry.areaId,
     entry.areaName,
     entry.status,
+    (entry.badges || []).join(" "),
     (entry.badgesMasked || []).join(" "),
     entry.workRequest ?? "",
-    entry.leadBadge ?? "",
     entry.planningNote ?? "",
     entry.exportedAt ?? "",
   ]);

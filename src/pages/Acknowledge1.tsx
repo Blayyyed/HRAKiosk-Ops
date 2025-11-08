@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOperatorFlow } from "../contexts/OperatorContext";
-import BadgeInput, { BadgeValue } from "../components/BadgeInput";
+import BadgeInput from "../components/BadgeInput";
 
 const Acknowledge: React.FC = () => {
   const navigate = useNavigate();
@@ -13,18 +13,13 @@ const Acknowledge: React.FC = () => {
     onlyAreasBriefed: false,
   });
   const [workRequest, setWorkRequest] = useState(crew?.workRequest ?? "");
-  const [badges, setBadges] = useState<BadgeValue[]>([]);
+  const [badges, setBadges] = useState<string[]>(crew?.badges ?? []);
 
   useEffect(() => {
     if (crew) {
       setWorkRequest((prev) => (prev.length > 0 ? prev : crew.workRequest));
       if (badges.length === 0 && crew.badges.length > 0) {
-        setBadges(
-          crew.badges.map((badge, index) => ({
-            value: badge,
-            isLead: crew.leadBadge ? crew.leadBadge === badge : index === 0,
-          }))
-        );
+        setBadges(crew.badges);
       }
     }
   }, [crew, badges.length]);
@@ -47,11 +42,9 @@ const Acknowledge: React.FC = () => {
       return;
     }
     setAcks(checks);
-    const lead = badges.find((badge) => badge.isLead) ?? badges[0];
     setCrew({
       workRequest: workRequest.trim(),
-      badges: badges.map((badge) => badge.value),
-      leadBadge: lead?.value,
+      badges: badges,
     });
     navigate("/home");
   };
@@ -130,9 +123,7 @@ const Acknowledge: React.FC = () => {
             <div className="space-y-2">
               <div className="space-y-1">
                 <div className="text-sm font-semibold text-slate-700">Crew badges</div>
-                <p className="text-xs text-slate-500">
-                  Enter each badge number and press Add. Mark one badge as the crew lead.
-                </p>
+                <p className="text-xs text-slate-500">Enter each badge number and press Add.</p>
               </div>
               <BadgeInput badges={badges} onChange={setBadges} />
             </div>

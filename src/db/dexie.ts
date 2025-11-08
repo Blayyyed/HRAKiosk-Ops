@@ -75,6 +75,33 @@ export class HraDB extends Dexie {
             }
           });
       });
+
+    this.version(5)
+      .stores({
+        areas: "id,name,category",
+        entries: "id,timestamp,areaId,status",
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table<EntryRecord>("entries")
+          .toCollection()
+          .modify((entry) => {
+            if (!Array.isArray(entry.badges)) {
+              const masked = Array.isArray(entry.badgesMasked)
+                ? entry.badgesMasked
+                : [];
+              entry.badges = masked.map((value) => value.replace(/\*/g, "")).filter(Boolean);
+            }
+            if (!Array.isArray(entry.badgesMasked) && Array.isArray(entry.badges)) {
+              entry.badgesMasked = entry.badges.map((badge) =>
+                badge.length > 4 ? `${"*".repeat(Math.max(0, badge.length - 4))}${badge.slice(-4)}` : badge
+              );
+            }
+            if ((entry as { leadBadge?: string }).leadBadge) {
+              delete (entry as { leadBadge?: string }).leadBadge;
+            }
+          });
+      });
   }
 }
 
