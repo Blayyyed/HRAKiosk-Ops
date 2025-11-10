@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+  <title id="title">135 Foot CTMT Entire Elevation</title>
+  <desc id="desc">Simplified plan view of the 135 foot Containment structure highlighting key survey points, penetrations, and boundary signage.</desc>
+  <defs>
+    <radialGradient id="core" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.85" />
+      <stop offset="1" stop-color="#d4d8ff" stop-opacity="0.9" />
+    </radialGradient>
+    <pattern id="hatch" patternUnits="userSpaceOnUse" width="12" height="12">
+      <path d="M0 12 L12 0 M-3 3 L3 -3 M9 15 L15 9" stroke="#cbd5f5" stroke-width="2" />
+    </pattern>
+    <style>
+      .ring { fill:none; stroke:#2b4a7a; stroke-width:18; }
+      .label { font-family:'Segoe UI', Arial, sans-serif; font-size:28px; fill:#1f2937; font-weight:600; }
+      .small { font-size:24px; font-weight:500; }
+      .legend-title { font-size:30px; font-weight:600; }
+      .legend-text { font-size:24px; }
+      .danger { fill:#ef4444; }
+      .warning { fill:#f97316; }
+      .safe { fill:#10b981; }
+      .badge { fill:#ffffff; stroke:#1f2937; stroke-width:3; rx:18; }
+    </style>
+  </defs>
+  <rect width="1200" height="1200" fill="#f3f4f6" />
+  <g transform="translate(100,100)">
+    <circle cx="500" cy="500" r="460" fill="url(#core)" stroke="#1f2937" stroke-width="12" />
+    <circle class="ring" cx="500" cy="500" r="360" stroke-dasharray="20 36" stroke-linecap="round" />
+    <circle class="ring" cx="500" cy="500" r="250" stroke="#1f2937" stroke-width="10" stroke-dasharray="12 20" stroke-linecap="round" />
+    <circle cx="500" cy="500" r="150" fill="#fde68a" stroke="#92400e" stroke-width="8" />
+    <text x="500" y="505" text-anchor="middle" class="label" fill="#92400e">Knee Wall Piping</text>
+    <g fill="none" stroke="#1f2937" stroke-width="6">
+      <path d="M500 120 L500 250" />
+      <path d="M500 880 L500 750" />
+      <path d="M120 500 L250 500" />
+      <path d="M880 500 L750 500" />
+    </g>
+    <g fill="#1f2937" font-size="30" font-family="'Segoe UI', Arial, sans-serif">
+      <text x="500" y="80" text-anchor="middle">Hatch</text>
+      <text x="500" y="930" text-anchor="middle">Access to 121'</text>
+      <text x="120" y="480" text-anchor="start">To RCIC/RHR</text>
+      <text x="880" y="480" text-anchor="end">No Access</text>
+    </g>
+    <g>
+      <rect x="440" y="40" width="120" height="50" class="badge" />
+      <text x="500" y="75" text-anchor="middle" class="small">Hatch</text>
+      <rect x="804" y="430" width="148" height="54" class="badge" />
+      <text x="878" y="465" text-anchor="middle" class="small">HCA Tape</text>
+      <rect x="60" y="430" width="160" height="54" class="badge" />
+      <text x="140" y="465" text-anchor="middle" class="small">Indefinites CA Tape</text>
+    </g>
+    <g>
+      <circle cx="500" cy="220" r="32" class="danger" />
+      <text x="500" y="230" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="700">180/40</text>
+      <circle cx="500" cy="780" r="32" class="warning" />
+      <text x="500" y="790" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="700">40/15</text>
+      <circle cx="270" cy="500" r="32" class="danger" />
+      <text x="270" y="510" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="700">90/20</text>
+      <circle cx="730" cy="500" r="32" class="danger" />
+      <text x="730" y="510" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="700">126</text>
+    </g>
+    <g>
+      <path d="M500 370 C430 370 380 420 380 500 C380 580 430 630 500 630 C570 630 620 580 620 500 C620 420 570 370 500 370 Z" fill="url(#hatch)" stroke="#4b5563" stroke-width="6" />
+      <text x="500" y="520" text-anchor="middle" class="label">Drywell Shield Wall</text>
+    </g>
+    <g>
+      <rect x="420" y="640" width="160" height="54" class="badge" />
+      <text x="500" y="675" text-anchor="middle" class="small">Drain Down</text>
+      <rect x="740" y="640" width="160" height="54" class="badge" />
+      <text x="820" y="675" text-anchor="middle" class="small">To 147' Elev.</text>
+      <rect x="80" y="640" width="220" height="54" class="badge" />
+      <text x="190" y="675" text-anchor="middle" class="small">To Torus/Suppression Pool</text>
+    </g>
+    <g>
+      <circle cx="500" cy="500" r="470" fill="none" stroke="#9ca3af" stroke-dasharray="8 24" stroke-width="8" />
+      <text x="500" y="-20" text-anchor="middle" class="label">CTMT 135′ Elevation</text>
+    </g>
+  </g>
+  <g transform="translate(860,80)">
+    <rect width="280" height="240" fill="#ffffff" stroke="#1f2937" stroke-width="4" rx="18" />
+    <text x="140" y="50" text-anchor="middle" class="legend-title">Legend</text>
+    <g class="legend-text" fill="#111827">
+      <circle cx="40" cy="90" r="16" class="danger" />
+      <text x="80" y="98">High dose/Radiation Area</text>
+      <circle cx="40" cy="140" r="16" class="warning" />
+      <text x="80" y="148">Elevated dose</text>
+      <rect x="24" y="176" width="32" height="32" fill="url(#hatch)" stroke="#4b5563" stroke-width="4" />
+      <text x="80" y="198">Shield wall / barrier</text>
+    </g>
+  </g>
+</svg>
