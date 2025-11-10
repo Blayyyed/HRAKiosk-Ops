@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">CTMT135 Entire Elevation</title>
+  <desc id="desc">Plan view of the 135 foot CTMT elevation showing RA/DR postings, smear survey grid, and CA/HCA tapes.</desc>
+  <defs>
+    <style>
+      text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; fill: #1f2933; }
+      .hdr { font-size: 32px; font-weight: 600; }
+      .sub { font-size: 26px; }
+      .note { font-size: 24px; font-style: italic; }
+      .legend-title { font-size: 28px; font-weight: 600; }
+      .legend-text { font-size: 24px; }
+      .circle-label { font-size: 26px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+      .badge { fill: #ffffff; stroke: #334155; stroke-width: 3; rx: 14; }
+      .tab-text { font-size: 22px; }
+    </style>
+    <radialGradient id="ra-core" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff7ed" />
+      <stop offset="1" stop-color="#fcd34d" stop-opacity="0.95" />
+    </radialGradient>
+    <linearGradient id="caution" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fde68a" />
+      <stop offset="1" stop-color="#f97316" stop-opacity="0.75" />
+    </linearGradient>
+    <pattern id="shield" patternUnits="userSpaceOnUse" width="14" height="14">
+      <path d="M0 14 L14 0 M-4 4 L4 -4 M10 18 L18 10" stroke="#9ca3af" stroke-width="2" />
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="1100" fill="#f3f4f6" />
+
+  <!-- Header block -->
+  <g transform="translate(60,40)">
+    <text class="hdr">Map Name: CTMT135</text>
+    <text class="sub" y="44">Location: 135’ CTMT Entire Elevation</text>
+    <text class="sub" y="88" fill="#b91c1c">CTMT POSTED: RA, DR Brief Required for Entry</text>
+  </g>
+
+  <!-- Tabular menu mimic -->
+  <g transform="translate(980,40)">
+    <rect width="520" height="70" fill="#e0e7ff" stroke="#4c51bf" stroke-width="3" rx="14" />
+    <g transform="translate(10,8)">
+      <rect width="96" height="54" fill="#312e81" rx="10" />
+      <text x="48" y="33" text-anchor="middle" fill="#ffffff" class="tab-text">Smears</text>
+      <text x="168" y="33" class="tab-text">Surveys</text>
+      <text x="280" y="33" class="tab-text">Inspections</text>
+      <text x="416" y="33" class="tab-text">Scaffolds</text>
+    </g>
+  </g>
+
+  <!-- Smear table mimic -->
+  <g transform="translate(1040,140)">
+    <rect width="460" height="780" fill="#ffffff" stroke="#1f2937" stroke-width="3" rx="16" />
+    <text x="30" y="50" class="sub" font-weight="600">Smears</text>
+    <text x="30" y="92" class="tab-text" fill="#ef4444">(HRA) High Radiation Area</text>
+    <g transform="translate(24,120)">
+      <rect width="412" height="600" fill="#f8fafc" stroke="#cbd5f5" />
+      <text x="16" y="36" class="tab-text" font-weight="600">Points</text>
+      <text x="140" y="36" class="tab-text" font-weight="600">Beta</text>
+      <text x="236" y="36" class="tab-text" font-weight="600">Gamma</text>
+      <text x="332" y="36" class="tab-text" font-weight="600">Status</text>
+      <g font-size="20" fill="#1f2937">
+        <g transform="translate(0,64)">
+          <rect width="412" height="42" fill="#fee2e2" />
+          <text x="24" y="28">126</text>
+          <text x="140" y="28">90</text>
+          <text x="236" y="28">450</text>
+          <text x="332" y="28" fill="#dc2626">(HRA)</text>
+        </g>
+        <g transform="translate(0,118)">
+          <rect width="412" height="42" fill="#dbeafe" />
+          <text x="24" y="28">88</text>
+          <text x="140" y="28">60</text>
+          <text x="236" y="28">180</text>
+          <text x="332" y="28" fill="#2563eb">(DR)</text>
+        </g>
+        <g transform="translate(0,172)">
+          <rect width="412" height="42" fill="#fef3c7" />
+          <text x="24" y="28">40</text>
+          <text x="140" y="28">20</text>
+          <text x="236" y="28">75</text>
+          <text x="332" y="28" fill="#92400e">(RA)</text>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- Main donut -->
+  <g transform="translate(140,170)">
+    <circle cx="480" cy="420" r="420" fill="#ffffff" stroke="#111827" stroke-width="10" />
+    <circle cx="480" cy="420" r="360" fill="none" stroke="#1e3a8a" stroke-width="14" stroke-dasharray="24 32" stroke-linecap="round" />
+    <circle cx="480" cy="420" r="280" fill="url(#shield)" stroke="#111827" stroke-width="10" />
+    <circle cx="480" cy="420" r="180" fill="url(#ra-core)" stroke="#b45309" stroke-width="8" />
+
+    <text x="480" y="110" class="sub" text-anchor="middle">Hatch</text>
+    <text x="480" y="754" class="sub" text-anchor="middle">Access to 121’</text>
+    <text x="140" y="410" class="sub">To RHR</text>
+    <text x="820" y="410" class="sub" text-anchor="end">No Access</text>
+
+    <g fill="#ffffff" stroke="#1f2937" stroke-width="3">
+      <rect class="badge" x="384" y="32" width="192" height="56" />
+      <text x="480" y="70" class="sub" text-anchor="middle">Hatch</text>
+      <rect class="badge" x="782" y="374" width="184" height="56" />
+      <text x="874" y="412" class="sub" text-anchor="middle">HCA Tape</text>
+      <rect class="badge" x="60" y="374" width="220" height="56" />
+      <text x="170" y="412" class="sub" text-anchor="middle">Indefinites CA Tape</text>
+      <rect class="badge" x="340" y="640" width="220" height="56" />
+      <text x="450" y="678" class="sub" text-anchor="middle">Drain Down</text>
+      <rect class="badge" x="620" y="640" width="220" height="56" />
+      <text x="730" y="678" class="sub" text-anchor="middle">To 147’ Elev.</text>
+      <rect class="badge" x="72" y="640" width="250" height="56" />
+      <text x="198" y="678" class="sub" text-anchor="middle">To Torus / Suppression Pool</text>
+    </g>
+
+    <path d="M480 256 C400 256 332 320 332 420 C332 520 400 584 480 584 C560 584 628 520 628 420 C628 320 560 256 480 256 Z" fill="url(#shield)" stroke="#475569" stroke-width="6" />
+    <text x="480" y="432" class="sub" text-anchor="middle">Drywell Shield Wall</text>
+
+    <rect x="360" y="310" width="240" height="64" fill="#1e3a8a" rx="18" />
+    <text x="480" y="352" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="600">HCA Tape</text>
+
+    <text x="480" y="470" class="note" text-anchor="middle">Knee level piping along inner wall</text>
+
+    <!-- Dose circles -->
+    <g fill="#dc2626">
+      <circle cx="480" cy="220" r="38" />
+      <circle cx="284" cy="420" r="34" />
+      <circle cx="676" cy="420" r="34" />
+    </g>
+    <g fill="#ffffff">
+      <text x="480" y="220" class="circle-label">180/40</text>
+      <text x="284" y="420" class="circle-label">90/20</text>
+      <text x="676" y="420" class="circle-label">126</text>
+    </g>
+    <g>
+      <circle cx="480" cy="640" r="36" fill="#f97316" />
+      <text x="480" y="640" class="circle-label" fill="#ffffff">40/15</text>
+    </g>
+
+    <!-- Numbered barricades around ring -->
+    <g fill="#2563eb">
+      <circle cx="480" cy="120" r="28" />
+      <circle cx="620" cy="156" r="26" />
+      <circle cx="720" cy="240" r="26" />
+      <circle cx="760" cy="360" r="26" />
+      <circle cx="760" cy="480" r="26" />
+      <circle cx="720" cy="600" r="26" />
+      <circle cx="620" cy="684" r="26" />
+      <circle cx="480" cy="720" r="28" />
+      <circle cx="340" cy="684" r="26" />
+      <circle cx="240" cy="600" r="26" />
+      <circle cx="200" cy="480" r="26" />
+      <circle cx="200" cy="360" r="26" />
+      <circle cx="240" cy="240" r="26" />
+      <circle cx="340" cy="156" r="26" />
+    </g>
+    <g fill="#ffffff">
+      <text x="480" y="120" class="circle-label">1</text>
+      <text x="620" y="156" class="circle-label">2</text>
+      <text x="720" y="240" class="circle-label">3</text>
+      <text x="760" y="360" class="circle-label">4</text>
+      <text x="760" y="480" class="circle-label">5</text>
+      <text x="720" y="600" class="circle-label">6</text>
+      <text x="620" y="684" class="circle-label">7</text>
+      <text x="480" y="720" class="circle-label">8</text>
+      <text x="340" y="684" class="circle-label">9</text>
+      <text x="240" y="600" class="circle-label">10</text>
+      <text x="200" y="480" class="circle-label">11</text>
+      <text x="200" y="360" class="circle-label">12</text>
+      <text x="240" y="240" class="circle-label">13</text>
+      <text x="340" y="156" class="circle-label">14</text>
+    </g>
+  </g>
+
+  <!-- Legend / boundary text -->
+  <g transform="translate(60,940)">
+    <rect width="960" height="120" fill="#ffffff" stroke="#1f2937" stroke-width="3" rx="20" />
+    <text x="40" y="54" class="legend-title">Legend</text>
+    <g class="legend-text" transform="translate(36,78)">
+      <circle r="16" fill="#dc2626" />
+      <text x="32" y="8">High Radiation Area (HRA)</text>
+      <circle cx="270" r="16" fill="#f97316" />
+      <text x="302" y="8">Radiation Area (RA)</text>
+      <rect x="500" y="-16" width="32" height="32" fill="#2563eb" />
+      <text x="540" y="8">CA boundary posts</text>
+      <rect x="748" y="-16" width="32" height="32" fill="url(#shield)" stroke="#475569" />
+      <text x="788" y="8">Shield wall</text>
+    </g>
+  </g>
+</svg>
