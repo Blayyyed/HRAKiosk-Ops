@@ -4,7 +4,7 @@
     { "id": "CT135", "name": "135’ CTMT", "mapPath": "/maps/ctmt135.svg" },
     { "id": "CT161", "name": "161’ CTMT", "mapPath": "/maps/ctmt161.svg" },
     { "id": "CT185", "name": "185’ CTMT", "mapPath": "/maps/ctmt185.svg" },
-    { "id": "CT208", "name": "208’ CTMT", "mapPath": "/maps/placeholder.svg" }
+    { "id": "CT208", "name": "208’ Aux", "mapPath": "/maps/ctmt208-aux.svg" }
   ],
   "rhr": [
     { "id": "RHR_PUMP_A", "name": "RHR Pump Room A", "mapPath": "/maps/placeholder.svg" },
